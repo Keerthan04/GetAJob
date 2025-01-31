@@ -8,7 +8,6 @@ pids
 *.pid
 *.seed
 *.pid.lock
-
 # Runtime data
 pids
 *.pid
