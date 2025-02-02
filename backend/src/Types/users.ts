@@ -1,20 +1,26 @@
+import {User,Employer,Job,Application,ApplicationStatus,JobType,CompanySize,Industry} from '@prisma/client';
+export {User,Employer,Job,Application,ApplicationStatus,JobType,CompanySize,Industry} from '@prisma/client';
+
+//login user types
 export interface LoginUserRequest {
   email: string;
   password: string;
   role: "user" | "employeer";
 }
 export interface LoginUserResponse {
+  success: boolean;
   message: string;
   token?: string;
-  user?:User;
+  user?:Omit<User,"password">;
   error?: string;
-    //TODO: add more fields(based on database schema)
 }
 
-//dummy user type
-export interface User{
-    id:string;
-    email:string;
-    role:string;
-    password?:string;
+//register user types
+export type RegisterUserRequest = Omit<User,"id">;//we dont need id as it is auto generated
+
+export interface RegisterUserResponse {
+  success: boolean;
+  message: string;
+  user?:Omit<User,"password">;
+  error?: string;
 }

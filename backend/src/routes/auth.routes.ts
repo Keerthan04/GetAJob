@@ -1,14 +1,15 @@
 import { Request, Response, Router } from "express";
-import { LoginUser } from "../controllers/users.controller";
+import { LoginUser, RegisterUser } from "../controllers/users.controller";
 // /api/auth router
 
 const router = Router();
 
-router.post("/login", LoginUser);
+//working in both thunder client and frontend setup
+router.post("/user/login", LoginUser);
 
-router.post("/register", (req:Request, res:Response) => {
-  res.send("Hello from auth routes");
-});
+//Working now in thunder client
+// TODO -> setup frontend and work
+router.post("/user/register",RegisterUser);
 
 export default router;
 

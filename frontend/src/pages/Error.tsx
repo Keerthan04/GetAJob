@@ -4,6 +4,7 @@ import { Briefcase } from "lucide-react"; // Icon for a job-related feel
 import { Link } from "react-router-dom";
 
 export default function Error() {
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#F4F6F9] dark:bg-[#002B5B] text-center">
       <Card className="max-w-lg bg-white dark:bg-[#001D3D] shadow-lg p-6">

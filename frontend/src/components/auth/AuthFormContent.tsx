@@ -1,21 +1,72 @@
 import { Link } from "react-router-dom";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
+import { LoginService } from "@/services/FetchDataServices";
+import { useState,useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { UserDataContext } from "@/context/UserContext";
+
+
 //to do is to use the shadcn form and use the submit handler here and also the role and all use and call to backend
-const AuthFormContent = (
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    { role} : {role: "user" | "employeer" }
-) => {
+const AuthFormContent = ({ role }: { role: "user" | "employeer" }) => {
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const navigate = useNavigate();
+
+  const { setUserData } = useContext(UserDataContext)!;
+  const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const toastId = toast.loading("Logging in..."); // Get the toast ID
+    const data = {
+      email,
+      password,
+      role,
+    };
+    console.log(data);
+    try {
+      const responseData = await LoginService(data);
+
+      if (responseData.success) {
+        toast.success(responseData.message, { id: toastId });
+
+        localStorage.setItem("token", responseData.token!);
+        setUserData(responseData.user!);
+
+        setTimeout(() => {
+          navigate("/");
+        }, 2000);
+      } else {
+        toast.error(responseData.message || "Login Failed", { id: toastId });
+      }
+    } catch (error) {
+      console.error("Login Error:", error);
+      toast.error("Internal Server Error", { id: toastId });
+    } finally {
+      setEmail("");
+      setPassword("");
+    }
+  };
+
   return (
-    <form className="space-y-6 p-4">
+    <form onSubmit={(e) => submitHandler(e)} className="space-y-6 p-4">
       {/* Email & Password Fields */}
       <div className="space-y-4">
-        <Input type="email" placeholder="Email" required className="p-3" />
+        <Input
+          type="email"
+          placeholder="Email"
+          required
+          className="p-3"
+          onChange={(e) => setEmail(e.target.value)}
+          value={email}
+        />
         <Input
           type="password"
           placeholder="Password"
           required
           className="p-3"
+          onChange={(e) => setPassword(e.target.value)}
+          value={password}
         />
         <Button className="w-full bg-[#0044CC] hover:bg-[#003399] p-3 text-lg">
           Login
