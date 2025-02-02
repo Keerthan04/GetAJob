@@ -6,15 +6,18 @@ import { useState,useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { UserDataContext } from "@/context/UserContext";
+import { EmployerDataContext } from "@/context/EmployeerContext";
+import { User, Employer } from "@/types";
 
 
-//to do is to use the shadcn form and use the submit handler here and also the role and all use and call to backend
-const AuthFormContent = ({ role }: { role: "user" | "employeer" }) => {
+//to do is to use the shadcn form and validation
+const AuthFormContent = ({ role }: { role: "user" | "employer" }) => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const navigate = useNavigate();
 
   const { setUserData } = useContext(UserDataContext)!;
+  const { setEmployerData } = useContext(EmployerDataContext)!;
   const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const toastId = toast.loading("Logging in..."); // Get the toast ID
@@ -23,7 +26,6 @@ const AuthFormContent = ({ role }: { role: "user" | "employeer" }) => {
       password,
       role,
     };
-    console.log(data);
     try {
       const responseData = await LoginService(data);
 
@@ -31,22 +33,39 @@ const AuthFormContent = ({ role }: { role: "user" | "employeer" }) => {
         toast.success(responseData.message, { id: toastId });
 
         localStorage.setItem("token", responseData.token!);
-        setUserData(responseData.user!);
+        if (role === "user") {
+          setUserData(responseData.user as User);
+        } else {
+          setEmployerData(responseData.user as Employer);
+        }
 
         setTimeout(() => {
-          navigate("/");
+          if (role === "user") {
+            navigate("/user");
+          } else {
+            navigate("/employer");
+          }
         }, 2000);
       } else {
         toast.error(responseData.message || "Login Failed", { id: toastId });
       }
-    } catch (error) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error:any) {
       console.error("Login Error:", error);
-      toast.error("Internal Server Error", { id: toastId });
+
+      if (error.response) {
+        // Error response from server (like 401, 403, 500)
+        toast.error(error.response.data?.message || "Something went wrong",{ id: toastId });
+      } else {
+        // Network error or request failure
+        toast.error("Internal Server Error", { id: toastId });
+      }
     } finally {
       setEmail("");
       setPassword("");
     }
   };
+  //!IMP problem is if server return 401 and all it is direct going to catch block not the else part(shd check)
 
   return (
     <form onSubmit={(e) => submitHandler(e)} className="space-y-6 p-4">

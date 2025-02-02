@@ -14,7 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AuthFormContent from "./AuthFormContent";
 
 const Auth = () => {
-  const [role, setRole] = useState<"user" | "employeer">("user");
+  const [role, setRole] = useState<"user" | "employer">("user");
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-[#F4F6F9] dark:bg-[#002B5B]">
@@ -43,8 +43,8 @@ const Auth = () => {
                     User
                   </TabsTrigger>
                   <TabsTrigger
-                    value="employeer"
-                    onClick={() => setRole("employeer")}
+                    value="employer"
+                    onClick={() => setRole("employer")}
                   >
                     Employeer
                   </TabsTrigger>
@@ -57,7 +57,7 @@ const Auth = () => {
                 </TabsContent>
 
                 {/* Employeer Login FORM */}
-                <TabsContent value="employeer">
+                <TabsContent value="employer">
                   <AuthFormContent role={role} />
                 </TabsContent>
               </Tabs>

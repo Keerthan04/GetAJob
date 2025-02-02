@@ -17,7 +17,7 @@ const UserContext = ({children}: {children: React.ReactNode}) => {
   const [userData, setUserData] = useState<User | null>(null);
   return (
     <div>
-      <UserDataContext.Provider value={{userData, setUserData}}>e
+      <UserDataContext.Provider value={{userData, setUserData}}>
         {children}
       </UserDataContext.Provider>
     </div>

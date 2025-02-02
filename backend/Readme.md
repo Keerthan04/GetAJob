@@ -123,7 +123,7 @@ enum ApplicationStatus {
 
 #### Login User
 
-**POST** `/api/auth/login`
+**POST** `/api/auth/user/login`
 
 Request Body:
 
@@ -131,7 +131,6 @@ Request Body:
 {
   "email": "user@example.com",
   "password": "password123",
-  "role": "user"
 }
 ```
 
@@ -160,7 +159,7 @@ Response Body:
 
 #### Register User
 
-**POST** `/api/auth/register`
+**POST** `/api/auth/user/register`
 
 Request Body:
 
@@ -204,27 +203,108 @@ Response Body:
 }
 ```
 
+#### Login Employer
+
+**POST** `/api/auth/employer/login`
+
+Request Body:
+
+```json
+{
+  "email": "employer@company.com",
+  "password": "password123",
+}
+```
+
+Response Body:
+
+```json
+{
+  "success": true,
+  "message": "Login successful",
+  "token": "jwt-token",
+  "user": {
+    "id": "employer-id",
+    "name": "Jane Smith",
+    "email": "employer@company.com",
+    "companyName": "Tech Corp",
+    "companyWebsite": "https://techcorp.com",
+    "companySize": "MEDIUM",
+    "industry": "TECH",
+    "location": "San Francisco",
+    "description": "Leading tech company",
+    "logoUrl": "https://techcorp.com/logo.png",
+    "verified": true
+  }
+}
+```
+
+#### Register Employer
+
+**POST** `/api/auth/employer/register`
+
+Request Body:
+
+```json
+{
+  "name": "Jane Smith",
+  "email": "employer@company.com",
+  "password": "password123",
+  "companyName": "Tech Corp",
+  "companyWebsite": "https://techcorp.com",
+  "companySize": "MEDIUM",
+  "industry": "TECH",
+  "location": "San Francisco",
+  "description": "Leading tech company",
+  "logoUrl": "https://techcorp.com/logo.png"
+}
+```
+
+Response Body:
+
+```json
+{
+  "success": true,
+  "message": "Employer Registered successfully",
+  "user": {
+    "id": "employer-id",
+    "name": "Jane Smith",
+    "email": "employer@company.com",
+    "companyName": "Tech Corp",
+    "companyWebsite": "https://techcorp.com",
+    "companySize": "MEDIUM",
+    "industry": "TECH",
+    "location": "San Francisco",
+    "description": "Leading tech company",
+    "logoUrl": "https://techcorp.com/logo.png",
+    "verified": true,
+    "createdAt": "2024-01-20T12:00:00Z",
+    "updatedAt": "2024-01-20T12:00:00Z"
+  }
+}
+```
+
 ## Setup and Installation
 
-1. Install dependencies:
+1.Install dependencies:
 
 ```bash
 npm install
 ```
 
-2. Generate Prisma client:
+2.Generate Prisma client:
 
 ```bash
 npm run prisma:generate
 ```
 
-3. Run database migrations:
+3.Run database migrations:
 
 ```bash
 npm run prisma:migrate
 ```
 
-4. Start the development server:
+4.Start the development server:
 
 ```bash
 npm run dev

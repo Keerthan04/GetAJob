@@ -3,7 +3,7 @@ import { LoginResponse } from "@/types";
 export const LoginService = async (data: {
   email: string;
   password: string;
-  role: "user" | "employeer";
+  role: "user" | "employer";
 }): Promise<LoginResponse> => {
   const response = await axios.post(
     `${import.meta.env.VITE_BACKEND_URL}/api/auth/${data.role}/login`,
@@ -12,6 +12,7 @@ export const LoginService = async (data: {
       password: data.password,
     }
   );
-
+  console.log(response.data);
   return response.data;
 };
+
