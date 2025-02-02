@@ -106,9 +106,9 @@ const AuthFormContent = ({ role }: { role: "user" | "employer" }) => {
         </p>
         <Button variant="outline" className="w-full text-md">
           {role === "user" ? (
-            <Link to="/register/user">Register as User</Link>
+            <Link to="/auth/register/user">Register as User</Link>
           ) : (
-            <Link to="/register/employeer">Register as Employeer</Link>
+            <Link to="/auth/register/employer">Register as Employeer</Link>
           )}
         </Button>
       </div>
