@@ -41,7 +41,7 @@ const AuthFormContent = ({ role }: { role: "user" | "employer" }) => {
 
         setTimeout(() => {
           if (role === "user") {
-            navigate("/user");
+            navigate("/users");
           } else {
             navigate("/employer");
           }

@@ -1,13 +1,11 @@
-import { UserDataContext } from "@/context/UserContext";
-import { useContext } from "react"
+import NavBar from "@/components/NavBar"
+
 
 
 const UserDashboard = () => {
-  const {userData} = useContext(UserDataContext)!;
-  console.log(userData);
   return (
     <div>
-      Welcome to User Dashboard
+      <NavBar pathname="/users"/>
     </div>
   )
 }

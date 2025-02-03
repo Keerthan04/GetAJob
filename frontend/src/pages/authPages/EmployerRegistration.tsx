@@ -30,20 +30,16 @@ import {
 import { toast,Toaster } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { EmployerRegisterService } from "@/services/FetchDataServices";
-import { MultiSelect } from "@/components/ui/MultiSelect"; // MultiSelect for industry
+// import { MultiSelect } from "@/components/ui/MultiSelect"; // MultiSelect for industry
 import { Briefcase, User,Link2 } from "lucide-react";
-import { CompanySize, Industry } from "@/types";
+import { CompanySize, Industry} from "@/types";
+import { Textarea } from "@/components/ui/textarea";
 
 
 // Enums
 const COMPANY_SIZES = ["SMALL", "MEDIUM", "LARGE"] as const;
-const INDUSTRIES = [
-  "TECH",
-  "HEALTHCARE",
-  "FINANCE",
-  "EDUCATION",
-  "RETAIL",
-] as const;
+const INDUSTRIES = ["TECH", "HEALTHCARE", "FINANCE", "EDUCATION", "MANUFACTURING"] as const;
+
 
 // Schema validation using Zod
 const employerSchema = z.object({
@@ -53,7 +49,7 @@ const employerSchema = z.object({
   companyName: z.string().min(2, "Company Name is required"),
   companyWebsite: z.string().url("Invalid URL format").optional(),
   companySize: z.enum(COMPANY_SIZES),
-  industry: z.array(z.enum(INDUSTRIES)).min(1, "Select at least one industry"),
+  industry: z.enum(INDUSTRIES),
   location: z.string().min(2, "Location is required"),
   description: z.string().optional(),
   logoUrl: z.string().url("Invalid URL format").optional(),
@@ -75,11 +71,11 @@ export function EmployerRegistration() {
       companyName: "",
       companyWebsite: "",
       companySize: "SMALL",
-      industry: [],
+      industry: "TECH",
       location: "",
       description: "",
       logoUrl: "",
-      verified: true, // Always true
+      verified: true, // Always true(this will be done by us so default shd be false but for now done as true)
     },
   });
 
@@ -91,12 +87,12 @@ export function EmployerRegistration() {
         const formattedData = {
           ...data,
           companySize: data.companySize as CompanySize, // Ensure type matches
-          industry: data.industry[0] as Industry, // Select the first industry
+          industry: data.industry as Industry, // Select the first industry
         };
       const responseData = await EmployerRegisterService(formattedData);
 
       if (responseData.success) {
-        toast.success(responseData.message, { id: toastId });
+        toast.success(responseData.message + " Please Login", { id: toastId });
         setTimeout(() => navigate("/auth/login"), 2000);
       } else {
         toast.error(responseData.message || "Registration Failed", {
@@ -286,8 +282,33 @@ export function EmployerRegistration() {
                       </FormItem>
                     )}
                   />
-
                   <FormField
+                    control={form.control}
+                    name="industry"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Industry</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select company size" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {INDUSTRIES.map((ind) => (
+                              <SelectItem key={ind} value={ind}>
+                                {ind.charAt(0) + ind.slice(1).toLowerCase()}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* <FormField
                     control={form.control}
                     name="industry"
                     render={({ field }) => (
@@ -306,7 +327,7 @@ export function EmployerRegistration() {
                         <FormMessage />
                       </FormItem>
                     )}
-                  />
+                  /> */}
 
                   <FormField
                     control={form.control}
@@ -316,6 +337,38 @@ export function EmployerRegistration() {
                         <FormLabel>Company Location</FormLabel>
                         <FormControl>
                           <Input placeholder="City, Country" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Company Description</FormLabel>
+                        <FormControl>
+                          <Textarea placeholder="Brief Company Description" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="logoUrl"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Company Logo URL</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="url"
+                            placeholder="https://yourcompany.com/logo.png"
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

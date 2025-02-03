@@ -108,7 +108,7 @@ export function UserRegistration() {
       });
 
       if (responseData.success) {
-        toast.success(responseData.message, { id: toastId });
+        toast.success(responseData.message + " Please Login", { id: toastId });
         setTimeout(() => {
             navigate("/auth/login");
         }, 2000);
