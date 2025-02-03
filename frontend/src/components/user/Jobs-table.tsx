@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { JobCard } from "./job-card";
+import { Button } from "@/components/ui/button";
 
 interface Job {
   id: string;
@@ -25,24 +25,33 @@ interface JobsTableProps {
 
 export function JobsTable({ jobs }: JobsTableProps) {
   return (
-    <div className="rounded-md border">
+    <div className="rounded-md border shadow-md bg-white mx-auto w-full max-w-3xl">
       <Table>
         <TableHeader>
-          <TableRow>
-            <TableHead className="w-[80%]">Position Details</TableHead>
-            <TableHead>Posted Date</TableHead>
+          <TableRow className="bg-gray-100">
+            <TableHead>Job Title</TableHead>
+            <TableHead>Company</TableHead>
+            <TableHead>Location</TableHead>
+            <TableHead>Type</TableHead>
+            <TableHead>Posted</TableHead>
             <TableHead className="text-right">Action</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {jobs.map((job) => (
-            <TableRow key={job.id}>
-              <TableCell className="py-4">
-                <JobCard {...job} compact />
-              </TableCell>
+            <TableRow key={job.id} className="hover:bg-gray-50">
+              <TableCell className="font-medium">{job.title}</TableCell>
+              <TableCell>{job.company}</TableCell>
+              <TableCell>{job.location}</TableCell>
+              <TableCell>{job.type}</TableCell>
               <TableCell>{job.postedDate}</TableCell>
               <TableCell className="text-right">
-                <JobCard.ApplyButton />
+                <Button
+                  variant="default"
+                  className="bg-blue-900 hover:bg-blue-800"
+                >
+                  Apply
+                </Button>
               </TableCell>
             </TableRow>
           ))}
