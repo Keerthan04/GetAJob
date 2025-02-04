@@ -1,4 +1,5 @@
 import express, { Request, Response } from 'express';
+
 import userRouter from './routes/users.routes';
 import employeerRouter from './routes/employeer.routes';
 import cors from 'cors';
@@ -14,7 +15,7 @@ app.use(express.json());
 app.use(cors())
 
 app.use('/api/users',userRouter);
-app.use('/api/employeer',employeerRouter);
+app.use('/api/employer',employeerRouter);
 app.use('/api/auth',authRouter);
 
 

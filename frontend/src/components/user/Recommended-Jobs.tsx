@@ -1,14 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { JobCard } from "./Job-card";
+import { Job } from "@/types";
 
-interface Job {
-  id: string;
-  title: string;
-  company: string;
-  location: string;
-  type: string;
-  postedDate: string;
-}
+
 
 interface RecommendedJobsProps {
   jobs: Job[];
@@ -25,7 +19,7 @@ export function RecommendedJobs({ jobs }: RecommendedJobsProps) {
       </CardHeader>
       <CardContent className="flex flex-col md:flex-row gap-4 justify-center">
         {jobs.map((job) => (
-          <JobCard key={job.id} {...job} />
+          <JobCard key={job.id} job={job} compact={true} />
         ))}
       </CardContent>
     </Card>

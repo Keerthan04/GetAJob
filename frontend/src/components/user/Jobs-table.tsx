@@ -9,15 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-
-interface Job {
-  id: string;
-  title: string;
-  company: string;
-  location: string;
-  type: string;
-  postedDate: string;
-}
+import { Job } from "@/types";
 
 interface JobsTableProps {
   jobs: Job[];
@@ -43,8 +35,8 @@ export function JobsTable({ jobs }: JobsTableProps) {
               <TableCell className="font-medium">{job.title}</TableCell>
               <TableCell>{job.company}</TableCell>
               <TableCell>{job.location}</TableCell>
-              <TableCell>{job.type}</TableCell>
-              <TableCell>{job.postedDate}</TableCell>
+              <TableCell>{job.title}</TableCell>
+              <TableCell>{job.jobType}</TableCell>
               <TableCell className="text-right">
                 <Button
                   variant="default"

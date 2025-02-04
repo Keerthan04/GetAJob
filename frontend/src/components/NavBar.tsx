@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useState } from "react";
+import { useState } from "react";
 
 import { Link} from "react-router-dom";
 import { Briefcase, Search, Bell, Menu, X } from "lucide-react";
@@ -11,12 +11,12 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { UserDataContext } from "@/context/UserContext";
+// import { UserDataContext } from "@/context/UserContext";
 import { Separator } from "@/components/ui/separator";
+import { User } from "@/types";
 
-const NavBar = ({ pathname }: { pathname: string }) => {
+const NavBar = ({ pathname,user }: { pathname: string,user: User|null }) => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const {userData} = useContext(UserDataContext)!;
 
   const navItems = [
     { name: "Find Jobs", href: "/jobs", icon: Search },
@@ -72,13 +72,13 @@ const NavBar = ({ pathname }: { pathname: string }) => {
                   <div className="grid gap-4">
                     <div className="">
                       <div className="text-base font-medium leading-none text-black">
-                        {userData?.name}
+                        {user?.name}
                       </div>
                       <div className="text-sm font-medium leading-none text-blue-600">
-                        {userData?.email}
+                        {user?.email}
                       </div>
                     </div>
-                    <Separator className="text-black"/>
+                    <Separator className="text-black" />
                     <Link
                       to="/users/profile"
                       className="font-medium hover:underline"
@@ -151,10 +151,10 @@ const NavBar = ({ pathname }: { pathname: string }) => {
               </div>
               <div className="ml-3">
                 <div className="text-base font-medium leading-none text-white">
-                  {userData?.name}
+                  {user?.name}
                 </div>
                 <div className="text-sm font-medium leading-none text-blue-300">
-                  {userData?.email}
+                  {user?.email}
                 </div>
               </div>
             </div>
