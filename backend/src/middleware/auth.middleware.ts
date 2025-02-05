@@ -5,10 +5,10 @@ import { Employer, User } from "@prisma/client";
 import dotenv from "dotenv";
 dotenv.config();
 
-interface UserMiddleware extends Request{
+export interface UserMiddlewareRequest extends Request{
     user?: Omit<User, "password">;
 }
-interface EmployerMiddleware extends Request{
+export interface EmployerMiddlewareRequest extends Request{
     employer?: Omit<Employer, "password">;
 }
 /**
@@ -19,7 +19,7 @@ interface EmployerMiddleware extends Request{
  * @returns {Promise<void>}
  */
 export const userVerification = async (
-  req: UserMiddleware,
+  req: UserMiddlewareRequest,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
@@ -60,7 +60,7 @@ export const userVerification = async (
  * @returns {Promise<void>}
  */
 export const employerVerification = async (
-  req: EmployerMiddleware,
+  req: EmployerMiddlewareRequest,
   res: Response,
   next: NextFunction
 ): Promise<void> => {

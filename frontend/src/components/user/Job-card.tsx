@@ -3,6 +3,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Job } from "@/types";
 import { Separator } from "@radix-ui/react-separator";
 import { Building2, MapPin, Timer } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface JobCardProps {
   job: Job;
@@ -43,9 +44,11 @@ export function JobCard( { job, compact = false }: JobCardProps) {
             Posted {'2 days ago'}
           </span> */}
           <Separator className="w-full" />
+          <Link to={`/users/jobs/${job.id}`}>
           <Button variant="default" className="bg-blue-900 hover:bg-blue-800">
             Apply Now
           </Button>
+          </Link>
         </div>
       </CardFooter>
     </Card>

@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Job } from "@/types";
+import { Link } from "react-router-dom";
 
 interface JobsTableProps {
   jobs: Job[];
@@ -38,12 +39,14 @@ export function JobsTable({ jobs }: JobsTableProps) {
               <TableCell>{job.title}</TableCell>
               <TableCell>{job.jobType}</TableCell>
               <TableCell className="text-right">
+                <Link to={`/users/jobs/${job.id}`}>
                 <Button
                   variant="default"
                   className="bg-blue-900 hover:bg-blue-800"
                 >
                   Apply
                 </Button>
+                </Link>
               </TableCell>
             </TableRow>
           ))}

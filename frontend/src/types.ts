@@ -73,7 +73,18 @@ export interface Job {
     createdAt: Date;
     updatedAt: Date;
 }
-
+export interface companyDetails {
+    id: string;
+    name: string;
+    companyName: string;
+    companyWebsite?: string;
+    companySize: string;
+    industry: string;
+    location: string;
+    description?: string;
+    logoUrl?: string;
+    verified: boolean;
+}
 export interface Application {
     id: string;
     jobId: string;
