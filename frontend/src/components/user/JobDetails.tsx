@@ -35,6 +35,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { Job, companyDetails } from "@/types";
+import { useNavigate } from "react-router-dom";
 
 interface JobDetailsProps {
   job: Job;
@@ -45,6 +46,7 @@ interface JobDetailsProps {
 export function JobDetails({ job, isApplied, company }: JobDetailsProps) {
   const [showAiAnalysis, setShowAiAnalysis] = useState(false);
   const [isApplyDialogOpen, setIsApplyDialogOpen] = useState(false);
+  const navigate = useNavigate();
 
   // Mock data for the enhanced job details
   const responsibilities = [
@@ -279,7 +281,12 @@ export function JobDetails({ job, isApplied, company }: JobDetailsProps) {
                         </Button>
                         <Button
                           className="bg-blue-900 hover:bg-blue-800"
-                          onClick={() => setIsApplyDialogOpen(false)}
+                          onClick={() => {
+                            setIsApplyDialogOpen(false);
+                            navigate(`/users/jobs/${job?.id}/apply`, {
+                              state: { job },
+                            });
+                          }}
                         >
                           Confirm Application
                         </Button>

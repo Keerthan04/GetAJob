@@ -48,7 +48,7 @@ const ViewJob = () => {
     <>
       <NavBar pathname="/users" user={userData} />
       {loading ? (
-        <div>Loading...</div>
+        <div className="text-center flex h-screen w-screen items-center justify-center">Loading...</div>
       ) : error ? (
         <div>{error}</div>
       ) : (

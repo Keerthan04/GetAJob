@@ -6,6 +6,7 @@ import { getJobs, getJobDetails } from "../controllers/users.controller";
 
 const router = Router();
 
+
 // the validation still to be done
 router.get('/jobs', userVerification, getJobs);
 

@@ -6,6 +6,7 @@ import EmployerDashboard from "./pages/employeerPages/EmployerDashboard"
 import { UserRegistration } from "./pages/authPages/UserRegistration"
 import { EmployerRegistration } from "./pages/authPages/EmployerRegistration"
 import ViewJob from "./pages/userPages/ViewJob"
+import JobApplicationPage from "./pages/userPages/JobApplicationPage"
 
 
 const App = () => {
@@ -20,6 +21,7 @@ const App = () => {
       />
       <Route path="/users" element={<UserDashboard />} />
       <Route path="/users/jobs/:job_id" element={<ViewJob />} />
+      <Route path="/users/jobs/:job_id/apply" element={<JobApplicationPage />} />
       <Route path="/employer" element={<EmployerDashboard />} />
       <Route path="*" element={<Error />} />
     </Routes>
