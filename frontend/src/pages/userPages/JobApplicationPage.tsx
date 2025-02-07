@@ -5,6 +5,7 @@ import { Job } from "@/types";
 import { useContext } from "react";
 import { UserDataContext } from "@/context/UserContext";
 import NavBar from "@/components/NavBar";
+import { Toaster } from "sonner";
 
 export default function JobApplicationPage() {
   const params = useParams<{ job_id: string }>();
@@ -24,6 +25,7 @@ export default function JobApplicationPage() {
 
   return (
     <>
+    <Toaster richColors position="top-right" />
     <NavBar pathname="/users" user={userData} />
     <div className="container mx-auto py-6">
       <h1 className="text-2xl font-bold mb-6">Apply for {jobData.title}</h1>

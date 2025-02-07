@@ -1,7 +1,7 @@
 //api/users/
 import { Router } from "express";
 import { userVerification } from "../middleware/auth.middleware";
-import { getJobs, getJobDetails } from "../controllers/users.controller";
+import { getJobs, getJobDetails, applyForJob } from "../controllers/users.controller";
 
 
 const router = Router();
@@ -13,5 +13,8 @@ router.get('/jobs', userVerification, getJobs);
 //validation to be done(returns the job details)
 //requires to pass the job id as params
 router.get('/jobs/:job_id', userVerification, getJobDetails);
+
+//apply for a job
+router.post('/jobs/:job_id/apply', userVerification, applyForJob);
 
 export default router;

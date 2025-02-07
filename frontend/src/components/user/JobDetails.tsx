@@ -12,6 +12,7 @@ import {
   Briefcase,
   Check,
   ChevronRight,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,19 +35,25 @@ import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import type { Job, companyDetails } from "@/types";
-import { useNavigate } from "react-router-dom";
+import type {Job, companyDetails } from "@/types";
+import { ApplicationStatus } from "@/types";
+import { Link } from "react-router-dom";
+import { toast } from "sonner";
+import axios from "axios";
+
 
 interface JobDetailsProps {
   job: Job;
   isApplied: boolean;
   company: companyDetails;
+  applicationStatus: ApplicationStatus | null;
 }
 
-export function JobDetails({ job, isApplied, company }: JobDetailsProps) {
+export function JobDetails({ job, isApplied, company, applicationStatus }: JobDetailsProps) {
   const [showAiAnalysis, setShowAiAnalysis] = useState(false);
   const [isApplyDialogOpen, setIsApplyDialogOpen] = useState(false);
-  const navigate = useNavigate();
+  const [onapplyStatus, setApplicationStatus] = useState<ApplicationStatus | null>(applicationStatus);
+  // const navigate = useNavigate();
 
   // Mock data for the enhanced job details
   const responsibilities = [
@@ -72,6 +79,28 @@ export function JobDetails({ job, isApplied, company }: JobDetailsProps) {
     cultureFit: 85,
     skillGaps: ["GraphQL", "AWS", "System Design"],
     strengths: ["React", "TypeScript", "Team Leadership"],
+  };
+  const onApplyClick = async () => {
+    const toastId = toast.loading("Submitting Application,Please Wait...");
+    try {
+      setIsApplyDialogOpen(false);
+      const res = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/users/jobs/${job.id}/apply`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      if(res.status === 200){
+        toast.success("Application Submitted Successfully", { id: toastId });
+        setApplicationStatus(res.data.data);
+        isApplied = true;
+      }
+    } catch (error) {
+      console.error("Error applying for job", error);
+      toast.error("Failed to submit application", { id: toastId });
+    }
   };
 
   return (
@@ -244,16 +273,36 @@ export function JobDetails({ job, isApplied, company }: JobDetailsProps) {
           <div className="sticky top-6 space-y-6">
             <Card>
               <CardContent className="pt-6">
-                {isApplied ? (
-                  <div className="space-y-4">
-                    <Button variant="outline" className="w-full" disabled>
-                      <Check className="w-4 h-4 mr-2 text-green-600" />
-                      Applied Successfully
-                    </Button>
-                    <p className="text-sm text-muted-foreground text-center">
-                      Your application is under review
-                    </p>
-                  </div>
+                {isApplied  ? (
+                    <div className="space-y-4">
+                      {onapplyStatus === ApplicationStatus.UNDER_CONSIDERATION && (
+                        <>
+                        <Button variant="outline" className="w-full" disabled>
+                          <Check className="w-4 h-4 mr-2 text-yellow-600" />
+                          Under Consideration
+                        </Button>
+                        <p>You have applied for this job</p>
+                        </>
+                      )}
+                      {onapplyStatus === ApplicationStatus.ACCEPTED && (
+                        <>
+                        <Button variant="outline" className="w-full" disabled>
+                          <Check className="w-4 h-4 mr-2 text-green-600" />
+                          Accepted
+                        </Button>
+                        <p>Congratulations! Your application has been accepted</p>
+                        </>
+                      )}
+                      {onapplyStatus === ApplicationStatus.REJECTED && (
+                        <>
+                        <Button variant="outline" className="w-full" disabled>
+                          <X className="w-4 h-4 mr-2 text-red-600" />
+                          Rejected
+                        </Button>
+                        <p>Sorry! Your application has been rejected</p>
+                        </>
+                      )}
+                    </div>
                 ) : (
                   <Dialog
                     open={isApplyDialogOpen}
@@ -270,6 +319,14 @@ export function JobDetails({ job, isApplied, company }: JobDetailsProps) {
                         <DialogDescription>
                           Are you sure you want to apply for this position at{" "}
                           {job?.company}?
+
+                          <p className="text-sm text-muted-foreground">
+                            Note: On applying, your application will be submitted
+                            with your current profile and resume details. If you
+                            want to make any changes, please update your details
+                            on the <Link to="/users/profile"><span className="text-blue-600 underline">Profile</span></Link> page before
+                            applying.
+                          </p>
                         </DialogDescription>
                       </DialogHeader>
                       <DialogFooter>
@@ -282,10 +339,7 @@ export function JobDetails({ job, isApplied, company }: JobDetailsProps) {
                         <Button
                           className="bg-blue-900 hover:bg-blue-800"
                           onClick={() => {
-                            setIsApplyDialogOpen(false);
-                            navigate(`/users/jobs/${job?.id}/apply`, {
-                              state: { job },
-                            });
+                            onApplyClick();
                           }}
                         >
                           Confirm Application

@@ -3,7 +3,7 @@ import { useEffect, useContext, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import NavBar from "@/components/NavBar";
-import { companyDetails, Job } from "@/types";
+import { ApplicationStatus, companyDetails, Job } from "@/types";
 import { JobDetails } from "@/components/user/JobDetails";
 
 const ViewJob = () => {
@@ -15,6 +15,7 @@ const ViewJob = () => {
   const [company, setCompany] = useState<companyDetails | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [applicationStatus, setApplicationStatus] = useState<ApplicationStatus | null>(null);
 
   useEffect(() => {
     const fetchJob = async () => {
@@ -29,10 +30,15 @@ const ViewJob = () => {
             },
           }
         );
-        const { job, company, isApplied } = res.data.data;
+        const { job, company, isApplied, applicationStatus } = res.data.data;
         setJob(job);
         setCompany(company);
         setIsApplied(isApplied);
+        if(applicationStatus === undefined) {
+          setApplicationStatus(null);
+        }else{
+          setApplicationStatus(applicationStatus);
+        }
       } catch (error) {
         console.error("Failed to fetch job:", error);
         setError("Error fetching job details.");
@@ -56,6 +62,7 @@ const ViewJob = () => {
           job={job as Job}
           isApplied={isApplied}
           company={company as companyDetails}
+          applicationStatus={applicationStatus}
         />
       )}
     </>

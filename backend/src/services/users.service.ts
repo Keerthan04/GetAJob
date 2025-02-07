@@ -1,3 +1,4 @@
+import { ApplicationStatus } from "@prisma/client";
 import { prisma } from "../db/db";
 export const getAllJobs = async () => {
     // get all jobs
@@ -42,10 +43,21 @@ export const getJob = async (user_id: string, job_id: string) => {
         return null;
     }
     if (isAppliedByUser) {
+        //get the application status
+        const applicationStatus = await prisma.application.findFirst({
+            where: {
+                jobId: job_id,
+                userId: user_id
+            },
+            select: {
+                status: true
+            }
+        });
       return {
         job: job,
         isApplied: true,
         company: companyDetails,
+        applicationStatus: applicationStatus?.status,
       };
     }else{
         return {
@@ -54,4 +66,16 @@ export const getJob = async (user_id: string, job_id: string) => {
             company: companyDetails,
         };
     }
+}
+
+export const jobApplication = async (user_id: string, job_id: string): Promise<ApplicationStatus> => {
+    // apply for a job
+    const application = await prisma.application.create({
+        data: {
+            jobId: job_id,
+            userId: user_id,
+            status: "UNDER_CONSIDERATION",
+        }
+    });
+    return application.status;
 }
