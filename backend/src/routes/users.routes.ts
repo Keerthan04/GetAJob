@@ -15,6 +15,6 @@ router.get('/jobs', userVerification, getJobs);
 router.get('/jobs/:job_id', userVerification, getJobDetails);
 
 //apply for a job
-router.post('/jobs/:job_id/apply', userVerification, applyForJob);
+router.get('/jobs/:job_id/apply', userVerification, applyForJob);
 
 export default router;

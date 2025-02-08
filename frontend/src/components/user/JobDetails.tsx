@@ -50,8 +50,9 @@ interface JobDetailsProps {
 }
 
 export function JobDetails({ job, isApplied, company, applicationStatus }: JobDetailsProps) {
-  const [showAiAnalysis, setShowAiAnalysis] = useState(false);
-  const [isApplyDialogOpen, setIsApplyDialogOpen] = useState(false);
+  const [showAiAnalysis, setShowAiAnalysis] = useState<boolean>(false);
+  const [isApplyDialogOpen, setIsApplyDialogOpen] = useState<boolean>(false);
+  const [isAppliedState,setIsAppliedState] = useState<boolean>(isApplied);//since component rerender to show the changes we are using a state variable
   const [onapplyStatus, setApplicationStatus] = useState<ApplicationStatus | null>(applicationStatus);
   // const navigate = useNavigate();
 
@@ -84,7 +85,9 @@ export function JobDetails({ job, isApplied, company, applicationStatus }: JobDe
     const toastId = toast.loading("Submitting Application,Please Wait...");
     try {
       setIsApplyDialogOpen(false);
-      const res = await axios.post(
+      console.log(localStorage.getItem("token"));
+      //!IMP when a post request is sent the 2nd parameter in axios is data so goes as body to backend the object and the 3rd parameter is the headers but in get request the 2nd parameter is the headers(as in get we cant send body) and the 3rd parameter is the query params
+      const res = await axios.get(
         `${import.meta.env.VITE_BACKEND_URL}/api/users/jobs/${job.id}/apply`,
         {
           headers: {
@@ -95,7 +98,7 @@ export function JobDetails({ job, isApplied, company, applicationStatus }: JobDe
       if(res.status === 200){
         toast.success("Application Submitted Successfully", { id: toastId });
         setApplicationStatus(res.data.data);
-        isApplied = true;
+        setIsAppliedState(true);//so that rerender happens and the apply now button changes to applied(under consid and all)
       }
     } catch (error) {
       console.error("Error applying for job", error);
@@ -136,7 +139,7 @@ export function JobDetails({ job, isApplied, company, applicationStatus }: JobDe
                     </div>
                   </CardDescription>
                 </div>
-                {isApplied && (
+                {isAppliedState && (
                   <Badge
                     variant="secondary"
                     className="bg-green-100 text-green-800"
@@ -159,7 +162,9 @@ export function JobDetails({ job, isApplied, company, applicationStatus }: JobDe
               <div className="flex items-start gap-6">
                 {company?.logoUrl && (
                   <img
-                    src={company?.logoUrl || "../../assets/company_placeholder.png"}
+                    src={
+                      company?.logoUrl || "../../assets/company_placeholder.png"
+                    }
                     alt={company?.name}
                     className="w-20 h-20 rounded-lg object-cover border-2 border-blue-100"
                   />
@@ -273,36 +278,39 @@ export function JobDetails({ job, isApplied, company, applicationStatus }: JobDe
           <div className="sticky top-6 space-y-6">
             <Card>
               <CardContent className="pt-6">
-                {isApplied  ? (
-                    <div className="space-y-4">
-                      {onapplyStatus === ApplicationStatus.UNDER_CONSIDERATION && (
-                        <>
+                {isAppliedState ? (
+                  <div className="space-y-4">
+                    {onapplyStatus ===
+                      ApplicationStatus.UNDER_CONSIDERATION && (
+                      <>
                         <Button variant="outline" className="w-full" disabled>
                           <Check className="w-4 h-4 mr-2 text-yellow-600" />
                           Under Consideration
                         </Button>
                         <p>You have applied for this job</p>
-                        </>
-                      )}
-                      {onapplyStatus === ApplicationStatus.ACCEPTED && (
-                        <>
+                      </>
+                    )}
+                    {onapplyStatus === ApplicationStatus.ACCEPTED && (
+                      <>
                         <Button variant="outline" className="w-full" disabled>
                           <Check className="w-4 h-4 mr-2 text-green-600" />
                           Accepted
                         </Button>
-                        <p>Congratulations! Your application has been accepted</p>
-                        </>
-                      )}
-                      {onapplyStatus === ApplicationStatus.REJECTED && (
-                        <>
+                        <p>
+                          Congratulations! Your application has been accepted
+                        </p>
+                      </>
+                    )}
+                    {onapplyStatus === ApplicationStatus.REJECTED && (
+                      <>
                         <Button variant="outline" className="w-full" disabled>
                           <X className="w-4 h-4 mr-2 text-red-600" />
                           Rejected
                         </Button>
                         <p>Sorry! Your application has been rejected</p>
-                        </>
-                      )}
-                    </div>
+                      </>
+                    )}
+                  </div>
                 ) : (
                   <Dialog
                     open={isApplyDialogOpen}
@@ -319,14 +327,18 @@ export function JobDetails({ job, isApplied, company, applicationStatus }: JobDe
                         <DialogDescription>
                           Are you sure you want to apply for this position at{" "}
                           {job?.company}?
-
-                          <p className="text-sm text-muted-foreground">
-                            Note: On applying, your application will be submitted
-                            with your current profile and resume details. If you
-                            want to make any changes, please update your details
-                            on the <Link to="/users/profile"><span className="text-blue-600 underline">Profile</span></Link> page before
-                            applying.
-                          </p>
+                          <br></br><br></br>
+                          Note: On applying, your application
+                          will be submitted with your current profile and resume
+                          details. If you want to make any changes, please
+                          update your details on the{" "}
+                          <Link to="/users/profile">
+                            <span className="text-blue-600 underline">
+                              Profile
+                            </span>
+                          </Link>{" "}
+                          page before applying.
+                          
                         </DialogDescription>
                       </DialogHeader>
                       <DialogFooter>
@@ -338,8 +350,8 @@ export function JobDetails({ job, isApplied, company, applicationStatus }: JobDe
                         </Button>
                         <Button
                           className="bg-blue-900 hover:bg-blue-800"
-                          onClick={() => {
-                            onApplyClick();
+                          onClick={async () => {
+                            await onApplyClick();
                           }}
                         >
                           Confirm Application

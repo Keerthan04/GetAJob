@@ -5,6 +5,7 @@ import axios from "axios";
 import NavBar from "@/components/NavBar";
 import { ApplicationStatus, companyDetails, Job } from "@/types";
 import { JobDetails } from "@/components/user/JobDetails";
+import { Toaster,toast } from "sonner";
 
 const ViewJob = () => {
   const { job_id } = useParams<{ job_id: string }>();
@@ -14,13 +15,12 @@ const ViewJob = () => {
   const [isApplied, setIsApplied] = useState<boolean>(false);
   const [company, setCompany] = useState<companyDetails | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
   const [applicationStatus, setApplicationStatus] = useState<ApplicationStatus | null>(null);
 
   useEffect(() => {
     const fetchJob = async () => {
       setLoading(true);
-      setError(null);
+      const toastId = toast.loading("Fetching job details...");
       try {
         const res = await axios.get(
           `${import.meta.env.VITE_BACKEND_URL}/api/users/jobs/${job_id}`,
@@ -39,9 +39,10 @@ const ViewJob = () => {
         }else{
           setApplicationStatus(applicationStatus);
         }
+        toast.success(res.data.message,{id: toastId});
       } catch (error) {
         console.error("Failed to fetch job:", error);
-        setError("Error fetching job details.");
+        toast.error("Failed to fetch job details", {id: toastId});
       } finally {
         setLoading(false);
       }
@@ -52,12 +53,12 @@ const ViewJob = () => {
 
   return (
     <>
+      <Toaster richColors position="top-right" />
       <NavBar pathname="/users" user={userData} />
       {loading ? (
         <div className="text-center flex h-screen w-screen items-center justify-center">Loading...</div>
-      ) : error ? (
-        <div>{error}</div>
-      ) : (
+      )
+      : (
         <JobDetails
           job={job as Job}
           isApplied={isApplied}

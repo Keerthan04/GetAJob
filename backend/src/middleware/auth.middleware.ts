@@ -24,8 +24,8 @@ export const userVerification = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const token =
-      req.header("Authorization")?.split(" ")[1] || req.cookies.token;
+    const token: string =
+      req.header("Authorization")?.split(" ")[1] || req.cookies?.token;
     if (!token) {
       res.status(401).json({ success: false, message: "Unauthorized" });
       return;

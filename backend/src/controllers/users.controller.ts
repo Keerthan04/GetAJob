@@ -62,6 +62,7 @@ export async function getJobDetails(
     }
     res.status(200).json({
       success: true,
+      message: "Job details fetched successfully",
       data: {
         job: job.job,
         isApplied: job.isApplied,
