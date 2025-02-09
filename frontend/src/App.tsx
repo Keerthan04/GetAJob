@@ -7,6 +7,7 @@ import { UserRegistration } from "./pages/authPages/UserRegistration"
 import { EmployerRegistration } from "./pages/authPages/EmployerRegistration"
 import ViewJob from "./pages/userPages/ViewJob"
 import JobApplicationPage from "./pages/userPages/JobApplicationPage"
+import ApplicationsPage from "./pages/userPages/ApplicationsPage"
 
 
 const App = () => {
@@ -19,9 +20,10 @@ const App = () => {
         path="/auth/register/employer"
         element={<EmployerRegistration />}
       />
-      <Route path="/users" element={<UserDashboard />} />
+      <Route path="/users/jobs" element={<UserDashboard />} />
       <Route path="/users/jobs/:job_id" element={<ViewJob />} />
       <Route path="/users/jobs/:job_id/apply" element={<JobApplicationPage />} />
+      <Route path = "/users/applications" element = {<ApplicationsPage/>}/>
       <Route path="/employer" element={<EmployerDashboard />} />
       <Route path="*" element={<Error />} />
     </Routes>

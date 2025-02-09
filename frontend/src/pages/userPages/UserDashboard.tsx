@@ -37,7 +37,7 @@ const UserDashboard = () => {
   },[]);
   return (
     <div>
-      <NavBar pathname="/users" user={userData} />
+      <NavBar pathname="/users/jobs" user={userData} />
       <Toaster richColors position="top-right" />
       {loading ? (
         <div className="flex justify-center py-6">Loading...</div>
@@ -47,7 +47,7 @@ const UserDashboard = () => {
             {" "}
             {/* Centering with max-width */}
             {/* Recommended Jobs Section */}
-            <RecommendedJobs jobs={sampleJobs?.slice(0,3)} />
+            <RecommendedJobs jobs={sampleJobs?.slice(0, 3)} />
             {/* Search Bar */}
             <div className="relative">
               <Search className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />

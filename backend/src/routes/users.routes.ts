@@ -1,7 +1,7 @@
 //api/users/
 import { Router } from "express";
 import { userVerification } from "../middleware/auth.middleware";
-import { getJobs, getJobDetails, applyForJob } from "../controllers/users.controller";
+import { getJobs, getJobDetails, applyForJob, getAppliedJobs } from "../controllers/users.controller";
 
 
 const router = Router();
@@ -16,5 +16,8 @@ router.get('/jobs/:job_id', userVerification, getJobDetails);
 
 //apply for a job
 router.get('/jobs/:job_id/apply', userVerification, applyForJob);
+
+//get all jobs applied by the user
+router.get('/applied', userVerification, getAppliedJobs);
 
 export default router;

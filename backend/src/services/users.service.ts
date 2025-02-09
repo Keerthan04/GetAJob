@@ -1,4 +1,4 @@
-import { ApplicationStatus } from "@prisma/client";
+import { Application, ApplicationStatus, JobType } from "@prisma/client";
 import { prisma } from "../db/db";
 export const getAllJobs = async () => {
     // get all jobs
@@ -79,3 +79,34 @@ export const jobApplication = async (user_id: string, job_id: string): Promise<A
     });
     return application.status;
 }
+
+
+export const getUserAppliedJobs = async (
+  user_id: string
+)=> {
+  // get all jobs applied by the user
+  const appliedJobs = await prisma.application.findMany({
+    where: {
+      userId: user_id,
+    },
+  });
+  if (!appliedJobs) {
+    return null;
+  }
+  const jobs = await getAppliedJobs(appliedJobs, user_id);
+  return jobs;
+};
+
+const getAppliedJobs = async (
+  applications: Application[],
+  user_id: string
+)=> {
+  // get all jobs applied by the user
+  const jobs = await Promise.all(
+    applications.map(async (job) => {
+     const jobDetails = getJob(user_id, job.jobId);
+     return jobDetails;
+    })
+  );
+  return jobs;
+};

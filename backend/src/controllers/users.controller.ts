@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
-import { getAllJobs, getJob, jobApplication } from "../services/users.service";
+import { getAllJobs, getJob, getUserAppliedJobs, jobApplication } from "../services/users.service";
 import { ApplicationStatus, Job } from "@prisma/client";
 import { UserMiddlewareRequest } from "../middleware/auth.middleware";
 
-export async function getJobs(req: Request, res: Response): Promise<void> {
+export async function getJobs(req: UserMiddlewareRequest, res: Response): Promise<void> {
     try {
         const jobs = await getAllJobs() || [];
         res.status(200).json({
@@ -97,6 +97,31 @@ export async function applyForJob(req: JobDetailsRequest, res: Response): Promis
         });
     } catch (error) {
         console.error("Apply for Job Error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Internal Server Error",
+            error: (error as Error).message
+        });
+    }
+}
+
+
+export async function getAppliedJobs(req: UserMiddlewareRequest, res: Response): Promise<void> {
+    try {
+        const jobs = await getUserAppliedJobs(req.user?.id as string) || [];
+        //remove job if job is null
+        jobs.forEach((job, index) => {
+            if (!job) {
+                jobs.splice(index, 1);
+            }
+        });
+        res.status(200).json({
+          success: true,
+          message: "Applied Jobs fetched successfully",
+          data: jobs,
+        });
+    } catch (error) {
+        console.error("Get Applied Jobs Error:", error);
         res.status(500).json({
             success: false,
             message: "Internal Server Error",

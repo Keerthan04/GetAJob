@@ -19,7 +19,7 @@ const NavBar = ({ pathname,user }: { pathname: string,user: User|null }) => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navItems = [
-    { name: "Find Jobs", href: "/jobs", icon: Search },
+    { name: "Find Jobs", href: "/users/jobs", icon: Search },
     { name: "My Applications", href: "/users/applications", icon: Briefcase },
     { name: "Notifications", href: "/notifications", icon: Bell },
   ];
