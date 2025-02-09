@@ -8,12 +8,14 @@ import { EmployerRegistration } from "./pages/authPages/EmployerRegistration"
 import ViewJob from "./pages/userPages/ViewJob"
 import JobApplicationPage from "./pages/userPages/JobApplicationPage"
 import ApplicationsPage from "./pages/userPages/ApplicationsPage"
+import LandingPage from "./components/LandingPage"
 
 
 const App = () => {
   return (
     <Routes>
       {/* Routes go here */}
+      <Route path="/" element={<LandingPage/>} />
       <Route path="/auth/login" element={<AuthPage />} />
       <Route path="/auth/register/user" element={<UserRegistration />} />
       <Route
