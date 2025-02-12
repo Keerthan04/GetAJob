@@ -10,6 +10,9 @@ const router = Router();
 // the validation still to be done
 router.get('/jobs', userVerification, getJobs);
 
+//!NOT to be used anywhere(only for one time update to algolia)
+router.get('/algolia/jobs',getJobs);
+
 //validation to be done(returns the job details)
 //requires to pass the job id as params
 router.get('/jobs/:job_id', userVerification, getJobDetails);
