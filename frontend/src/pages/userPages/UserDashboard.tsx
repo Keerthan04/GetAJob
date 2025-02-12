@@ -1,16 +1,24 @@
 import NavBar from "@/components/NavBar";
-// import { Input } from "@/components/ui/input";
-import { JobsTable } from "@/components/user/Jobs-table";
+
 import { RecommendedJobs } from "@/components/user/Recommended-Jobs";
 import { UserDataContext } from "@/context/UserContext";
 import { Job } from "@/types";
-// import { Search } from "lucide-react";
 import { useEffect, useContext, useState } from "react";
 import { Toaster, toast } from "sonner";
 import axios from "axios";
-import { InstantSearch, SearchBox,Hits} from "react-instantsearch";
-import {searchClient,indexName} from '@/lib/algolia';
-import { useNavigate } from "react-router-dom";
+import { Search } from "lucide-react";
+import {
+  InstantSearch,
+  SearchBox,
+  Hits,
+  RefinementList,
+  Pagination,
+} from "react-instantsearch";
+import { searchClient, indexName } from "@/lib/algolia";
+import SearchHit from "@/components/user/SearchHit";
+
+
+//TODO -> Implement the filters for the search results(also if no search results are found to show no results found) and also test pagination with adding more jobs to db and also to algoia index
 
 const UserDashboard = () => {
   const { userData } = useContext(UserDataContext)!;
@@ -21,11 +29,14 @@ const UserDashboard = () => {
     const fetchJobs = async () => {
       setLoading(true);
       try {
-        const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/users/jobs`,{
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
+        const res = await axios.get(
+          `${import.meta.env.VITE_BACKEND_URL}/api/users/jobs`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
         setSampleJobs(res.data.data);
       } catch (error) {
         console.error("Failed to fetch jobs:", error);
@@ -35,8 +46,10 @@ const UserDashboard = () => {
         toast.success("Jobs fetched successfully");
       }
     };
-      fetchJobs();
-  },[]);
+    fetchJobs();
+  }, []);
+
+
   return (
     <div>
       <NavBar pathname="/users/jobs" user={userData} />
@@ -46,47 +59,58 @@ const UserDashboard = () => {
       ) : (
         <div className="flex justify-center py-6">
           <div className="w-full max-w-3xl space-y-6">
-            {" "}
-            {/* Centering with max-width */}
             {/* Recommended Jobs Section */}
             <RecommendedJobs jobs={sampleJobs?.slice(0, 3)} />
-            {/* Search Bar */}
-            {/* Search Bar with Algolia */}
+
+            {/* Search Bar with Icon */}
             <InstantSearch searchClient={searchClient} indexName={indexName}>
-              <SearchBox
-                placeholder="Search for jobs..."
-                classNames={{
-                  input: "pl-10 bg-white w-full",
-                }}
-              />
-              <Hits hitComponent={JobHit} />
+              <div className="relative flex items-center border border-black/50 rounded-full bg-white px-3 py-2 w-full">
+                <Search className="w-5 h-5 text-gray-600" />
+
+                <SearchBox
+                  placeholder="Search for jobs..."
+                  classNames={{
+                    input: "pl-3 bg-white w-full outline-none",
+                    form: "flex-grow w-full", // Ensures the search box expands fully
+                    submitIcon: "hidden",
+                    resetIcon: "hidden",
+                    loadingIcon: "hidden",
+                    root: "flex-grow w-full",
+                  }}
+                  autoFocus
+                />
+              </div>
+
+              {/* Filter by Location */}
+              <RefinementList attribute="location" className="mt-4" />
+
+              {/* Search Results */}
+              <Hits hitComponent={SearchHit} classNames={{
+                "list": "space-y-4",
+                "emptyRoot": "text-center mt-4",
+              }} />
+
+
+              {/* Pagination (5 per page) */}
+              <div className="mt-4 flex justify-center">
+                <Pagination
+                  classNames={{
+                    list: "flex space-x-2",
+                    link: "px-3 py-1 border rounded-md text-gray-600 hover:bg-gray-200",
+                    selectedItem: "bg-gray-200  text-white",
+                  }}
+                  padding={2}
+                  showLast={true}
+                />
+              </div>
             </InstantSearch>
-            {/* Job Listings Table */}
-            <JobsTable jobs={sampleJobs} />
+
+            {/* Currently dont need the job listing table(as we are dealing with search results)
+            Job Listings Table
+            <JobsTable jobs={sampleJobs} /> */}
           </div>
         </div>
       )}
-    </div>
-  );
-};
-
-// Component to display each search result
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const JobHit = ({ hit }: { hit: any }) => {
-  const navigate = useNavigate();
-
-  return (
-    <div className="border p-3 rounded-md shadow-sm">
-      <h3 className="font-semibold">{hit.title}</h3>
-      <p className="text-sm text-gray-500">{hit.company}</p>
-      <p className="text-xs text-gray-400">{hit.location}</p>
-
-      <button
-        className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md"
-        onClick={() => navigate(`/users/jobs/${hit.id}`)}
-      >
-        View More
-      </button>
     </div>
   );
 };

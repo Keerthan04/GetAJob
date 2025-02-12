@@ -117,6 +117,34 @@ enum ApplicationStatus {
 }
 ```
 
+## Setup and Installation
+
+1.Install dependencies:
+
+```bash
+npm install
+```
+
+2.Generate Prisma client:
+
+```bash
+npm run prisma:generate
+```
+
+3.Run database migrations:
+
+```bash
+npm run prisma:migrate
+```
+
+4.Start the development server:
+
+```bash
+npm run dev
+```
+
+The server will start running at `http://localhost:3000`.
+
 ## API Endpoints
 
 ### Authentication
@@ -284,30 +312,153 @@ Response Body:
 }
 ```
 
-## Setup and Installation
+### User Job Operations
 
-1.Install dependencies:
+All job-related endpoints require user authentication. Include the JWT token in the Authorization header:
 
-```bash
-npm install
+```json
+Authorization: Bearer <jwt-token>
 ```
 
-2.Generate Prisma client:
+#### Get All Jobs
 
-```bash
-npm run prisma:generate
+**GET** `/api/users/jobs`
+
+Response Body:
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "job-id",
+      "title": "Software Engineer",
+      "description": "Job description here",
+      "company": "Tech Corp",
+      "location": "San Francisco",
+      "skillsRequired": ["JavaScript", "React"],
+      "salaryRange": "$100k - $150k",
+      "jobType": "FULL_TIME",
+      "employerId": "employer-id",
+      "createdAt": "2024-01-20T12:00:00Z",
+      "updatedAt": "2024-01-20T12:00:00Z"
+    }
+  ]
+}
 ```
 
-3.Run database migrations:
+#### Get Job Details
 
-```bash
-npm run prisma:migrate
+**GET** `/api/users/jobs/:job_id`
+
+Response Body:
+
+```json
+{
+  "success": true,
+  "message": "Job details fetched successfully",
+  "data": {
+    "job": {
+      "id": "job-id",
+      "title": "Software Engineer",
+      "description": "Job description here",
+      "company": "Tech Corp",
+      "location": "San Francisco",
+      "skillsRequired": ["JavaScript", "React"],
+      "salaryRange": "$100k - $150k",
+      "jobType": "FULL_TIME",
+      "employerId": "employer-id"
+    },
+    "isApplied": false,
+    "company": {
+      "id": "employer-id",
+      "name": "Jane Smith",
+      "companyName": "Tech Corp",
+      "companyWebsite": "https://techcorp.com",
+      "companySize": "MEDIUM",
+      "industry": "TECH",
+      "location": "San Francisco",
+      "description": "Leading tech company",
+      "logoUrl": "https://techcorp.com/logo.png",
+      "verified": true
+    },
+    "applicationStatus": "UNDER_CONSIDERATION"
+  }
+}
 ```
 
-4.Start the development server:
+#### Apply for Job
 
-```bash
-npm run dev
+**GET** `/api/users/jobs/:job_id/apply`
+
+Response Body:
+
+```json
+{
+  "success": true,
+  "message": "Job Applied Successfully",
+  "data": "UNDER_CONSIDERATION"
+}
 ```
 
-The server will start running at `http://localhost:3000`.
+#### Get Applied Jobs
+
+**GET** `/api/users/applied`
+
+Response Body:
+
+```json
+{
+  "success": true,
+  "message": "Applied Jobs fetched successfully",
+  "data": [
+    {
+      "job": {
+        "id": "job-id",
+        "title": "Software Engineer",
+        "description": "Job description here",
+        "company": "Tech Corp",
+        "location": "San Francisco",
+        "skillsRequired": ["JavaScript", "React"],
+        "salaryRange": "$100k - $150k",
+        "jobType": "FULL_TIME",
+        "employerId": "employer-id"
+      },
+      "isApplied": true,
+      "company": {
+        "id": "employer-id",
+        "name": "Jane Smith",
+        "companyName": "Tech Corp",
+        "companyWebsite": "https://techcorp.com",
+        "companySize": "MEDIUM",
+        "industry": "TECH",
+        "location": "San Francisco",
+        "description": "Leading tech company",
+        "logoUrl": "https://techcorp.com/logo.png",
+        "verified": true
+      },
+      "applicationStatus": "UNDER_CONSIDERATION"
+    }
+  ]
+}
+```
+
+### Middleware
+
+#### User Authentication
+
+The `userVerification` middleware is used to protect routes that require user authentication. It:
+
+1. Extracts the JWT token from the Authorization header or cookies
+2. Verifies the token's validity
+3. Finds the user in the database
+4. Adds the user object (without password) to the request object
+
+If authentication fails, it returns:
+
+```json
+{
+  "success": false,
+  "message": "Unauthorized"
+}
+```

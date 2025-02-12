@@ -46,7 +46,7 @@ export function JobCard( { job, compact = false }: JobCardProps) {
           <Separator className="w-full" />
           <Link to={`/users/jobs/${job.id}`}>
           <Button variant="default" className="bg-blue-900 hover:bg-blue-800">
-            Apply Now
+            View More
           </Button>
           </Link>
         </div>
