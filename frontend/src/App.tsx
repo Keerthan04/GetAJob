@@ -9,6 +9,7 @@ import ViewJob from "./pages/userPages/ViewJob"
 import JobApplicationPage from "./pages/userPages/JobApplicationPage"
 import ApplicationsPage from "./pages/userPages/ApplicationsPage"
 import LandingPage from "./components/LandingPage"
+import UserProfile from "./pages/userPages/userProfile"
 
 
 const App = () => {
@@ -22,6 +23,8 @@ const App = () => {
         path="/auth/register/employer"
         element={<EmployerRegistration />}
       />
+
+      <Route path="/users/profile" element={<UserProfile/>} />
       <Route path="/users/jobs" element={<UserDashboard />} />
       <Route path="/users/jobs/:job_id" element={<ViewJob />} />
       <Route path="/users/jobs/:job_id/apply" element={<JobApplicationPage />} />
