@@ -49,7 +49,7 @@ const JOB_TYPES = [
   "REMOTE",
 ] as const;
 
-
+//!IMP -> Setup the registration schema of validation and make it proper(problem in skills and all we are getting so shd make it proper)
 const registrationSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email format"),

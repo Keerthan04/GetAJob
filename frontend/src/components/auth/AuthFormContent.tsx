@@ -1,33 +1,49 @@
 import { Link } from "react-router-dom";
 import { Button } from "../ui/button";
-import { Input } from "../ui/input";
 import { LoginService } from "@/services/FetchDataServices";
-import { useState,useContext } from "react";
+import {  useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { UserDataContext } from "@/context/UserContext";
 import { EmployerDataContext } from "@/context/EmployeerContext";
 import { User, Employer } from "@/types";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { loginSchema } from "@/validation/authValidation";
+import { z } from "zod";
+import { Input } from "../ui/input";
 
-
-//to do is to use the shadcn form and validation
 const AuthFormContent = ({ role }: { role: "user" | "employer" }) => {
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
   const navigate = useNavigate();
-
   const { setUserData } = useContext(UserDataContext)!;
   const { setEmployerData } = useContext(EmployerDataContext)!;
-  const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const toastId = toast.loading("Logging in..."); // Get the toast ID
-    const data = {
-      email,
-      password,
+
+  const form = useForm<z.infer<typeof loginSchema>>({
+    resolver: zodResolver(loginSchema),
+    mode: "onChange",//to show the errors dynamically to the user
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  const submitHandler = async (data: z.infer<typeof loginSchema>) => {
+    const toastId = toast.loading("Logging in...");
+    const newData = {
+      ...data,
       role,
     };
+
     try {
-      const responseData = await LoginService(data);
+      const responseData = await LoginService(newData);
 
       if (responseData.success) {
         toast.success(responseData.message, { id: toastId });
@@ -40,79 +56,95 @@ const AuthFormContent = ({ role }: { role: "user" | "employer" }) => {
         }
 
         setTimeout(() => {
-          if (role === "user") {
-            navigate("/users/jobs");
-          } else {
-            navigate("/employer");
-          }
+          navigate(role === "user" ? "/users/jobs" : "/employer");
         }, 2000);
       } else {
         toast.error(responseData.message || "Login Failed", { id: toastId });
       }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error:any) {
+    } catch (error: any) {
       console.error("Login Error:", error);
 
-      if (error.response) {
-        // Error response from server (like 401, 403, 500)
-        toast.error(error.response.data?.message || "Something went wrong",{ id: toastId });
+      //since using zod only in backend then we can check if the error is from backend and of zod then update the form state so shown in red below the input fields
+      if (error.response?.data?.message) {
+        const backendErrors = error.response.data.message; // Expected to be the structured Zod error format from backend
+
+        if (typeof backendErrors === "object") {
+          Object.keys(backendErrors).forEach((field) => {
+            form.setError(field as keyof z.infer<typeof loginSchema>, {
+              type: "server",
+              message: backendErrors[field]._errors.join(", "),
+            });
+          });
+        }
       } else {
-        // Network error or request failure
         toast.error("Internal Server Error", { id: toastId });
       }
-    } finally {
-      setEmail("");
-      setPassword("");
     }
   };
-  //!IMP problem is if server return 401 and all it is direct going to catch block not the else part(shd check)
+
 
   return (
-    <form onSubmit={(e) => submitHandler(e)} className="space-y-6 p-4">
-      {/* Email & Password Fields */}
-      <div className="space-y-4">
-        <Input
-          type="email"
-          placeholder="Email"
-          required
-          className="p-3"
-          onChange={(e) => setEmail(e.target.value)}
-          value={email}
+    //using shadcn forms to properly use zod and useForm
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(submitHandler)}
+        className="space-y-6 p-4"
+      >
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Email</FormLabel>
+              <FormControl>
+                <Input placeholder="Email" {...field} />
+              </FormControl>
+              <FormMessage className="text-red-600">
+                {form.formState.errors.email?.message}
+              </FormMessage>
+            </FormItem>
+          )}
         />
-        <Input
-          type="password"
-          placeholder="Password"
-          required
-          className="p-3"
-          onChange={(e) => setPassword(e.target.value)}
-          value={password}
+        <FormField
+          control={form.control}
+          name="password"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Password</FormLabel>
+              <FormControl>
+                <Input type="password" placeholder="Password" {...field} />
+              </FormControl>
+              <FormMessage className="text-red-600">
+                {form.formState.errors.password?.message}
+              </FormMessage>
+            </FormItem>
+          )}
         />
         <Button className="w-full bg-[#0044CC] hover:bg-[#003399] p-3 text-lg">
           Login
         </Button>
-      </div>
 
-      {/* Separator Line */}
-      <div className="relative flex items-center">
-        <div className="flex-grow border-t border-gray-300"></div>
-        <span className="px-3 text-gray-500 text-sm">or</span>
-        <div className="flex-grow border-t border-gray-300"></div>
-      </div>
+        <div className="relative flex items-center">
+          <div className="flex-grow border-t border-gray-300"></div>
+          <span className="px-3 text-gray-500 text-sm">or</span>
+          <div className="flex-grow border-t border-gray-300"></div>
+        </div>
 
-      {/* Register Section */}
-      <div className="text-center space-y-3">
-        <p className="text-sm text-gray-700 dark:text-gray-300">
-          Don't have an account?
-        </p>
-        <Button variant="outline" className="w-full text-md">
-          {role === "user" ? (
-            <Link to="/auth/register/user">Register as User</Link>
-          ) : (
-            <Link to="/auth/register/employer">Register as Employeer</Link>
-          )}
-        </Button>
-      </div>
-    </form>
+        <div className="text-center space-y-3">
+          <p className="text-sm text-gray-700 dark:text-gray-300">
+            Don't have an account?
+          </p>
+          <Button variant="outline" className="w-full text-md">
+            {role === "user" ? (
+              <Link to="/auth/register/user">Register as User</Link>
+            ) : (
+              <Link to="/auth/register/employer">Register as Employer</Link>
+            )}
+          </Button>
+        </div>
+      </form>
+    </Form>
   );
 };
 

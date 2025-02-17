@@ -34,6 +34,7 @@ import { EmployerRegisterService } from "@/services/FetchDataServices";
 import { Briefcase, User,Link2 } from "lucide-react";
 import { CompanySize, Industry} from "@/types";
 import { Textarea } from "@/components/ui/textarea";
+import { registerEmployerSchema } from "@/validation/authValidation";
 
 
 // Enums
@@ -42,28 +43,29 @@ const INDUSTRIES = ["TECH", "HEALTHCARE", "FINANCE", "EDUCATION", "MANUFACTURING
 
 
 // Schema validation using Zod
-const employerSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email format"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  companyName: z.string().min(2, "Company Name is required"),
-  companyWebsite: z.string().url("Invalid URL format").optional(),
-  companySize: z.enum(COMPANY_SIZES),
-  industry: z.enum(INDUSTRIES),
-  location: z.string().min(2, "Location is required"),
-  description: z.string().optional(),
-  logoUrl: z.string().url("Invalid URL format").optional(),
-  verified: z.boolean().default(true), // Always true by default
-});
+// const employerSchema = z.object({
+//   name: z.string().min(2, "Name must be at least 2 characters"),
+//   email: z.string().email("Invalid email format"),
+//   password: z.string().min(6, "Password must be at least 6 characters"),
+//   companyName: z.string().min(2, "Company Name is required"),
+//   companyWebsite: z.string().url("Invalid URL format").optional(),
+//   companySize: z.enum(COMPANY_SIZES),
+//   industry: z.enum(INDUSTRIES),
+//   location: z.string().min(2, "Location is required"),
+//   description: z.string().optional(),
+//   logoUrl: z.string().url("Invalid URL format").optional(),
+//   verified: z.boolean().default(true), // Always true by default
+// });
 
-type EmployerFormValues = z.infer<typeof employerSchema>;
+//!IMP -> the type is done of the validation and working mostly fine(check again once)
+type EmployerFormValues = z.infer<typeof registerEmployerSchema>;
 
 export function EmployerRegistration() {
   const [loading, setLoading] = useState<boolean>(false);
   const navigate = useNavigate();
 
   const form = useForm<EmployerFormValues>({
-    resolver: zodResolver(employerSchema),
+    resolver: zodResolver(registerEmployerSchema),
     defaultValues: {
       name: "",
       email: "",
@@ -77,6 +79,7 @@ export function EmployerRegistration() {
       logoUrl: "",
       verified: true, // Always true(this will be done by us so default shd be false but for now done as true)
     },
+    mode:"onChange",
   });
 
   const onSubmit = async (data: EmployerFormValues) => {

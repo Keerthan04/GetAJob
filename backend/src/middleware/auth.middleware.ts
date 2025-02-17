@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import { findEmployerByEmail, findUserByEmail, getEmployerWithoutPassword, getUserWithoutPassword } from "../services/auth.service";
 import { Employer, User } from "@prisma/client";
 import dotenv from "dotenv";
+import { loginSchema, registerEmployerSchema, registerUserSchema } from "../validation/authValidation";
 dotenv.config();
 
 export interface UserMiddlewareRequest extends Request{
@@ -88,3 +89,35 @@ export const employerVerification = async (
     return;
   }
 };
+
+
+
+
+export const validateLogin = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  const result = loginSchema.safeParse(req.body);
+  if (result.success) {
+    next();
+  } else {
+    res.status(400).json({ success: false, message: result.error.format() });
+  }
+}
+
+//validation middleware for users
+export const validateRegisterUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  const result = registerUserSchema.safeParse(req.body);
+  if (result.success) {
+    next();
+  } else {
+    res.status(400).json({ success: false, message: result.error.format() });
+  }
+}
+
+//validation middleware for employers
+export const validateRegisterEmployer = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  const result = registerEmployerSchema.safeParse(req.body);
+  if (result.success) {
+    next();
+  } else {
+    res.status(400).json({ success: false, message: result.error.format() });
+  }
+}
