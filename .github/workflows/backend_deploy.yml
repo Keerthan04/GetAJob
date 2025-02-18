@@ -22,7 +22,7 @@ jobs:
 
     - name: Deploy Backend to Azure VM
       run: |
-        ssh -i ~/.ssh/id_rsa keerthanvm@y4.186.56.114 << 'EOF'
+        ssh -i ~/.ssh/id_rsa keerthanvm@4.186.56.114 << 'EOF'
         cd /GetAJob/backend  # Change to backend directory
 
         git pull origin main  # Pull latest changes
