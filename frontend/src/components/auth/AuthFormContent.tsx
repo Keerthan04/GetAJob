@@ -76,6 +76,10 @@ const AuthFormContent = ({ role }: { role: "user" | "employer" }) => {
               message: backendErrors[field]._errors.join(", "),
             });
           });
+        } else {
+          toast.error(error.response.data?.message || "Something went wrong", {
+            id: toastId,
+          });
         }
       } else {
         toast.error("Internal Server Error", { id: toastId });

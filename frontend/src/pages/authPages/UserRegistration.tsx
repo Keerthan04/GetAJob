@@ -49,40 +49,28 @@ const JOB_TYPES = [
   "REMOTE",
 ] as const;
 
-//!IMP -> Setup the registration schema of validation and make it proper(problem in skills and all we are getting so shd make it proper)
-const registrationSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email format"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  phone: z.string().optional(),
-  location: z.string().optional(),
-  skills: z.string().optional(), // Will be converted to an array later
-  experience: z.number().min(0, "Experience cannot be negative"),
-  education: z.string().optional(),
-  portfolio: z.string().optional(),
-  jobTitle: z.string().optional(),
-  jobType: z.array(z.enum(JOB_TYPES)).min(1, "Select at least one job type"),
-  availability: z.boolean().default(true),
-});
+//!IMP -> working now(if error in registering loading only not showing error so fix it)
+
 
 import { toast, Toaster } from "sonner";
 import { JobType } from "@/types";
+import { registerUserSchema } from "@/validation/authValidation";
 
-type RegistrationFormValues = z.infer<typeof registrationSchema>;
+type RegistrationFormValues = z.infer<typeof registerUserSchema>;
 
 export function UserRegistration() {
   const [loading, setLoading] = useState<boolean>(false);
   const navigate = useNavigate();
 
   const form = useForm<RegistrationFormValues>({
-    resolver: zodResolver(registrationSchema),
+    resolver: zodResolver(registerUserSchema),
     defaultValues: {
       name: "",
       email: "",
       password: "",
       phone: "",
       location: "",
-      skills: "", // Will be split into an array later
+      skills: [], // Will be split into an array later
       experience: 0,
       education: "",
       portfolio: "",
@@ -90,42 +78,48 @@ export function UserRegistration() {
       jobType: [], // Multi-select
       availability: true,
     },
+    mode: "onChange"
   });
+  console.log("Errors:", form.formState.errors);
 
   const onSubmit = async (data: RegistrationFormValues) => {
     setLoading(true);
-    console.log(data);
-    const toastId = toast.loading("Logging in...");
-    // Ensure skills is always an array
-    const formattedSkills = data.skills
-      ? data.skills.split(",").map((skill) => skill.trim())
-      : [];
+    const toastId = toast.loading("Registering...");
+
     try {
       const responseData = await UserRegisterService({
         ...data,
-        skills: formattedSkills, // Convert to array
-        jobType: data.jobType.map((type) => type as JobType), // Ensure jobType is correctly typed
+        experience: Number(data.experience),
+        jobType: data.jobType as JobType[],
       });
 
       if (responseData.success) {
         toast.success(responseData.message + " Please Login", { id: toastId });
-        setTimeout(() => {
-            navigate("/auth/login");
-        }, 2000);
+        setTimeout(() => navigate("/auth/login"), 2000);
       } else {
-        toast.error(responseData.message || "Login Failed", { id: toastId });
-      }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      console.error("Login Error:", error);
-
-      if (error.response) {
-        // Error response from server (like 401, 403, 500)
-        toast.error(error.response.data?.message || "Something went wrong", {
+        toast.error(responseData.message || "Registration Failed", {
           id: toastId,
         });
+      }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.error("Registration Error:", error);
+      if (error.response?.data?.message) {
+                    const backendErrors = error.response.data.message; // Expected to be the structured Zod error format from backend
+            
+                    if (typeof backendErrors === "object") {
+                      Object.keys(backendErrors).forEach((field) => {
+                        form.setError(field as keyof z.infer<typeof registerUserSchema>, {
+                          type: "server",
+                          message: backendErrors[field]._errors.join(", "),
+                        });
+                      });
+                    }else{
+                      toast.error(error.response.data?.message || "Something went wrong", {
+                        id: toastId,
+                      });
+                    }
       } else {
-        // Network error or request failure
         toast.error("Internal Server Error", { id: toastId });
       }
     } finally {
@@ -135,7 +129,7 @@ export function UserRegistration() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center p-6">
-      <Toaster richColors position="top-right"/>
+      <Toaster richColors position="top-right" />
       <div className="container flex flex-col lg:flex-row gap-8 max-w-6xl">
         {/* Left Side - Hero Section */}
         <div className="hidden lg:flex flex-col justify-center w-1/2 space-y-6">
@@ -200,7 +194,9 @@ export function UserRegistration() {
                             <FormControl>
                               <Input placeholder="John Doe" {...field} />
                             </FormControl>
-                            <FormMessage />
+                            <FormMessage className="text-red-600">
+                              {form.formState.errors.name?.message}
+                            </FormMessage>
                           </FormItem>
                         )}
                       />
@@ -218,7 +214,9 @@ export function UserRegistration() {
                                 {...field}
                               />
                             </FormControl>
-                            <FormMessage />
+                            <FormMessage className="text-red-600">
+                              {form.formState.errors.email?.message}
+                            </FormMessage>
                           </FormItem>
                         )}
                       />
@@ -236,7 +234,9 @@ export function UserRegistration() {
                                 {...field}
                               />
                             </FormControl>
-                            <FormMessage />
+                            <FormMessage className="text-red-600">
+                              {form.formState.errors.password?.message}
+                            </FormMessage>
                           </FormItem>
                         )}
                       />
@@ -253,7 +253,9 @@ export function UserRegistration() {
                                 {...field}
                               />
                             </FormControl>
-                            <FormMessage />
+                            <FormMessage className="text-red-600">
+                              {form.formState.errors.phone?.message}
+                            </FormMessage>
                           </FormItem>
                         )}
                       />
@@ -276,7 +278,9 @@ export function UserRegistration() {
                             <FormControl>
                               <Input placeholder="City, Country" {...field} />
                             </FormControl>
-                            <FormMessage />
+                            <FormMessage className="text-red-600">
+                              {form.formState.errors.location?.message}
+                            </FormMessage>
                           </FormItem>
                         )}
                       />
@@ -293,7 +297,9 @@ export function UserRegistration() {
                                 {...field}
                               />
                             </FormControl>
-                            <FormMessage />
+                            <FormMessage className="text-red-600">
+                              {form.formState.errors.jobTitle?.message}
+                            </FormMessage>
                           </FormItem>
                         )}
                       />
@@ -315,7 +321,47 @@ export function UserRegistration() {
                                 }
                               />
                             </FormControl>
-                            <FormMessage />
+                            <FormMessage className="text-red-600">
+                              {form.formState.errors.experience?.message}
+                            </FormMessage>
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="education"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Highest Education(Optional)</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="string"
+                                placeholder="Btech..."
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage className="text-red-600">
+                              {form.formState.errors.education?.message}
+                            </FormMessage>
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="portfolio"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Portfolio Link(Optional)</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="string"
+                                placeholder="https://example.com"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage className="text-red-600">
+                              {form.formState.errors.portfolio?.message}
+                            </FormMessage>
                           </FormItem>
                         )}
                       />
@@ -345,7 +391,9 @@ export function UserRegistration() {
                               <SelectItem value="false">No, not now</SelectItem>
                             </SelectContent>
                           </Select>
-                          <FormMessage />
+                          <FormMessage className="text-red-600">
+                            {form.formState.errors.availability?.message}
+                          </FormMessage>
                         </FormItem>
                       )}
                     />
@@ -361,7 +409,9 @@ export function UserRegistration() {
                               {...field}
                             />
                           </FormControl>
-                          <FormMessage />
+                          <FormMessage className="text-red-600">
+                            {form.formState.errors.skills?.message}
+                          </FormMessage>
                         </FormItem>
                       )}
                     />
@@ -381,7 +431,9 @@ export function UserRegistration() {
                               field.onChange(values.map((item) => item.value))
                             }
                           />
-                          <FormMessage />
+                          <FormMessage className="text-red-600">
+                            {form.formState.errors.jobType?.message}
+                          </FormMessage>
                         </FormItem>
                       )}
                     />

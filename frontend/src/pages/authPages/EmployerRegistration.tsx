@@ -105,12 +105,24 @@ export function EmployerRegistration() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Login Error:", error);
-
-      if (error.response) {
-        // Error response from server (like 401, 403, 500)
-        toast.error(error.response.data?.message || "Something went wrong", {
-          id: toastId,
-        });
+      
+      //make use of zod error handling
+      if (error.response?.data?.message) {
+              const backendErrors = error.response.data.message; // Expected to be the structured Zod error format from backend
+      
+              if (typeof backendErrors === "object") {
+                Object.keys(backendErrors).forEach((field) => {
+                  form.setError(field as keyof z.infer<typeof registerEmployerSchema>, {
+                    type: "server",
+                    message: backendErrors[field]._errors.join(", "),
+                  });
+                });
+              }else{
+                toast.error(error.response.data?.message || "Something went wrong", {
+                  id: toastId,
+                });
+              }
+              
       } else {
         // Network error or request failure
         toast.error("Internal Server Error", { id: toastId });

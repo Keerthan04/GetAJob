@@ -8,7 +8,7 @@ import {
 } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
-
+//TODO-> Signup goes to /auth/register/user but no for employer??
 export default function LandingPage() {
   const navigate = useNavigate();
   return (
