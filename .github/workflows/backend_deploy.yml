@@ -23,15 +23,16 @@ jobs:
     - name: Deploy Backend to Azure VM
       run: |
         ssh -i ~/.ssh/id_rsa keerthanvm@4.186.56.114 << 'EOF'
-        cd /GetAJob/backend  # Change to backend directory
+            cd /home/keerthanvm/GetAJob/backend  # Change to backend directory
 
-        git pull origin main  # Pull latest changes
+            git pull origin main  # Pull latest changes
 
-        npm install  # Install dependencies
-        npm run build  # Compile TypeScript
+            npm install  # Install dependencies
+            npx prisma migrate deploy  # Apply database migrations
+            npm run build  # Compile TypeScript
 
-        # Inject .env from GitHub Secrets
-        echo "${{ secrets.ENV_FILE }}" > .env
+            # Inject .env from GitHub Secrets
+            echo "${{ secrets.ENV_FILE }}" > .env
 
-        pm2 restart dist/index.js --name backend  # Restart backend with PM2
+            pm2 restart dist/index.js --name backend  # Restart backend with PM2
         EOF
