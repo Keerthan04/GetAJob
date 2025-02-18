@@ -23,18 +23,30 @@ jobs:
     - name: Deploy Backend to Azure VM
       run: |
         ssh -i ~/.ssh/id_rsa keerthanvm@4.186.56.114 << 'EOF'
-            cd /home/keerthanvm/GetAJob/backend || exit 1  # Change to backend directory
+            cd /home/keerthanvm/GetAJob/backend || exit 1  # Ensure we're in backend
+            
+            # Ensure repo exists
+            if [ ! -d ".git" ]; then
+              git clone https://github.com/Keerthan04/GetAJob.git .
+            fi
 
             git pull origin main  # Pull latest changes
 
-            npm install  # Install dependencies
-            npm install -g prisma  # Ensure Prisma is installed
-            npx prisma migrate deploy  # Apply database migrations
+            npm install  # Install dependencies locally
+            npm install --save-dev prisma  # Fix Prisma permission issue
+            npx prisma migrate deploy  # Run database migrations
             npm run build  # Compile TypeScript
-
-            # Inject .env from GitHub Secrets safely(for multi line so printf)
+            
+            # Inject .env from GitHub Secrets safely
             printf "%s" "${{ secrets.ENV_FILE }}" > .env
 
-
-            pm2 restart dist/index.js --name backend  # Restart backend with PM2
+            # Find the correct build file and restart with PM2
+            if [ -f "dist/server.js" ]; then
+              pm2 restart dist/server.js --name backend
+            elif [ -f "dist/index.js" ]; then
+              pm2 restart dist/index.js --name backend
+            else
+              echo "⚠️ No valid build file found in dist/"
+              exit 1
+            fi
         EOF
