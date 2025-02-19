@@ -89,10 +89,16 @@ model Job {
   employerId    String
   employer      Employer @relation(fields: [employerId], references: [id])
   applications  Application[]
-
+  jobStatus     JobStatus @default(ACTIVE)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
+
+enum JobStatus {
+  ACTIVE
+  INACTIVE
+}
+
 
 
 model Application {
@@ -112,4 +118,5 @@ enum ApplicationStatus {
   UNDER_CONSIDERATION
   ACCEPTED
   REJECTED
+  SHORTLISTED
 }

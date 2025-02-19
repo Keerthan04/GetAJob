@@ -95,7 +95,7 @@ const DashboardJobsComponent: React.FC = () => {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Link to={`/employeer/jobs/${job.id}`}>
+                  <Link to={`/employer/jobs/${job.id}`}>
                     <Button className="w-full bg-blue-900 hover:bg-blue-800">
                       View Applications
                     </Button>
