@@ -56,7 +56,7 @@ const AuthFormContent = ({ role }: { role: "user" | "employer" }) => {
         }
 
         setTimeout(() => {
-          navigate(role === "user" ? "/users/jobs" : "/employer");
+          navigate(role === "user" ? "/users/jobs" : "/employer/jobs");
         }, 2000);
       } else {
         toast.error(responseData.message || "Login Failed", { id: toastId });
