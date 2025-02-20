@@ -1,10 +1,20 @@
 import { EmployerMiddlewareRequest } from "../middleware/auth.middleware";
 import { Response, Request } from "express";
 import { getJobsByEmployerId } from "../services/employeer.service";
-import { getJobById, getApplicationsByJobId } from "../services/employeer.service";
+import {
+  getApplicationsByJobId,
+} from "../services/employeer.service";
 import { ApplicationStatus, JobStatus } from "@prisma/client";
-import { updateApplicationStatus, updateJobStatus } from "../services/employeer.service";
+import {
+  updateApplicationStatus,
+  updateJobStatus,
+} from "../services/employeer.service";
+import { getUserById, getJobById } from "../services/utils.service";
+import { sendEmail } from "../mail/sendEmail";
+import { emailTemplates } from "../mail/emailTemplate";
 
+
+type EmailTemplateKey = keyof typeof emailTemplates;
 
 export async function getEmployerJobs(
   req: EmployerMiddlewareRequest,
@@ -16,7 +26,7 @@ export async function getEmployerJobs(
       res.status(401).json({ success: false, message: "Unauthorized" });
       return;
     }
-    const jobs = await getJobsByEmployerId(employer.id) || [];
+    const jobs = (await getJobsByEmployerId(employer.id)) || [];
     res.status(200).json({ success: true, data: jobs });
   } catch (error) {
     console.error("Get employer Jobs Error:", error);
@@ -86,7 +96,46 @@ export async function changeApplicationStatus(
     }
     const { job_id, application_id } = req.params;
     const { status, userId } = req.body;
-    const application = await updateApplicationStatus(application_id, status,userId);
+    const application = await updateApplicationStatus(
+      application_id,
+      status,
+      userId
+    );
+    if (!application) {
+      res
+        .status(404)
+        .json({ success: false, message: "Application not found" });
+      return;
+    }
+    const user = await getUserById(userId);
+    if (!user) {
+      res.status(404).json({ success: false, message: "User not found" });
+      return;
+    }
+    const job = await getJobById(job_id);
+    if (!job) {
+      res.status(404).json({ success: false, message: "Job not found" });
+      return;
+    }
+    const email = user.email;
+    const userName = user.name;
+    const jobTitle = job.title;
+    const companyName = job.company;
+    const statusString = status.toString() as EmailTemplateKey;
+    if (emailTemplates[statusString]) {
+      const emailContent = emailTemplates[statusString](
+        userName,
+        jobTitle,
+        companyName
+      );
+      await sendEmail({
+        to: email,
+        subject: emailContent.subject,
+        text: emailContent.subject, // Plain text fallback
+        html: emailContent.html,
+      });
+    }
+
     res.status(200).json({ success: true, data: application });
   } catch (error) {
     console.error("Change application status Error:", error);

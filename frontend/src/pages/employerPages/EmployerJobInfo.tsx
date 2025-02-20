@@ -135,7 +135,6 @@ const EmployerJobInfo = () => {
     }
   };
   const handleStatusSubmit = () => {
-    console.log("Status change state value is", status);
     if (!status.applicationId || !status.userId || !status.status) {
       toast.error("Please select a valid status");
       return;

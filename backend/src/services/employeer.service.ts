@@ -35,14 +35,7 @@ export const getJobsByEmployerId = async (employerId: string) => {
   return jobsWithApplicantsCount;
 };
 
-export const getJobById = async (jobId: string) => {
-  const job = await prisma.job.findUnique({
-    where: {
-      id: jobId,
-    },
-  });
-  return job;
-};
+
 
 export const getApplicationsByJobId = async (jobId: string) => {
   const applications = await prisma.application.findMany({
