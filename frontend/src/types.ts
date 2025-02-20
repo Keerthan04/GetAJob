@@ -23,7 +23,8 @@ export enum Industry {
 export enum ApplicationStatus {
     UNDER_CONSIDERATION = 'UNDER_CONSIDERATION',
     ACCEPTED = 'ACCEPTED',
-    REJECTED = 'REJECTED'
+    REJECTED = 'REJECTED',
+    SHORTLISTED = 'SHORTLISTED'
 }
 
 export interface User {
@@ -72,6 +73,11 @@ export interface Job {
     employerId: string;
     createdAt: Date;
     updatedAt: Date;
+    jobStatus: JobStatus;
+}
+export enum JobStatus {
+    ACTIVE = 'ACTIVE',
+    INACTIVE = 'INACTIVE'
 }
 export interface companyDetails {
     id: string;

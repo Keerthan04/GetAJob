@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
-import { Application, Job, User } from "@/types";
+import { Application, Job, User, ApplicationStatus, JobStatus } from "@/types";
 import axios from "axios";
 import { toast } from "sonner";
 import {
@@ -48,6 +48,11 @@ interface ApplicationWithUser {
   application: Application;
   user: User;
 }
+interface Status {
+  applicationId: string;
+  userId: string;
+  status: ApplicationStatus;
+}
 
 const EmployerJobInfo = () => {
   const params = useParams<{ job_id: string }>();
@@ -55,6 +60,13 @@ const EmployerJobInfo = () => {
   const [loading, setLoading] = useState(true);
   const [jobDetails, setJobDetails] = useState<Job | null>(null);
   const [applications, setApplications] = useState<ApplicationWithUser[]>([]);
+  const [status, setStatus] = useState<Status>({
+    applicationId: "",
+    userId: "",
+    status: ApplicationStatus.ACCEPTED,
+  });
+  const [jobStatus, setJobStatus] = useState<JobStatus>(JobStatus.ACTIVE);
+  const [isJobStatusDialogOpen, setIsJobStatusDialogOpen] = useState(false);
   const { employerData } = useContext(EmployerDataContext)!;
 
   useEffect(() => {
@@ -75,6 +87,7 @@ const EmployerJobInfo = () => {
         };
         setJobDetails(job);
         setApplications(applications);
+        setJobStatus(job.jobStatus);
       } catch (error) {
         console.error("Failed to fetch jobs:", error);
         toast.error("Failed to fetch jobs");
@@ -88,7 +101,7 @@ const EmployerJobInfo = () => {
   const handleStatusChange = async (
     applicationId: string,
     userId: string,
-    status: string
+    status: ApplicationStatus
   ) => {
     try {
       toast.loading("Changing status...");
@@ -108,10 +121,10 @@ const EmployerJobInfo = () => {
       );
       if (res.status === 200) {
         toast.success("Status changed successfully");
-        setApplications(
-          applications.map((app) =>
+        setApplications((prevApplications) =>
+          prevApplications.map((app) =>
             app.application.id === applicationId
-              ? { ...app, application: res.data.data }
+              ? { ...app, application: { ...app.application, status } } // Ensure proper structure
               : app
           )
         );
@@ -121,7 +134,14 @@ const EmployerJobInfo = () => {
       toast.error("Failed to change status");
     }
   };
-
+  const handleStatusSubmit = () => {
+    console.log("Status change state value is", status);
+    if (!status.applicationId || !status.userId || !status.status) {
+      toast.error("Please select a valid status");
+      return;
+    }
+    handleStatusChange(status.applicationId, status.userId, status.status);
+  };
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -129,19 +149,94 @@ const EmployerJobInfo = () => {
       </div>
     );
   }
+  const handleJobStatus = async () => {
+    try {
+      if (!jobDetails?.id) {
+        toast.error("Cannot change job status");
+        return;
+      }
+      toast.loading("Updating job status...");
+      const res = await axios.put(
+        `${import.meta.env.VITE_BACKEND_URL}/api/employer/jobs/${
+          jobDetails.id
+        }`,
+        {
+          jobStatus:
+            jobStatus === JobStatus.ACTIVE
+              ? JobStatus.INACTIVE
+              : JobStatus.ACTIVE,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      if (res.status === 200) {
+        toast.dismiss(); // Dismiss loading toast
+        toast.success("Job status changed successfully");
+        setJobStatus(res.data.data.jobStatus);
+        setIsJobStatusDialogOpen(false); // Close the dialog manually
+      }
+    } catch (error) {
+      console.error("Failed to change job status:", error);
+      toast.dismiss();
+      toast.error("Failed to change job status");
+    }
+  };
 
   return (
     <div className="bg-gray-50 min-h-screen">
       <EmployerNavbar pathname="/employer/jobs" employer={employerData} />
       <div className="container mx-auto p-6">
         <Card className="mb-8 border-2 border-blue-100">
-          <CardHeader className="bg-blue-50">
-            <CardTitle className="text-2xl font-bold text-blue-900">
-              {jobDetails?.title}
-            </CardTitle>
-            <CardDescription className="text-blue-700">
-              Job Details
-            </CardDescription>
+          <CardHeader className="bg-blue-50 flex flex-row justify-between">
+            <div className="w-1/2">
+              <CardTitle className="text-2xl font-bold text-blue-900">
+                {jobDetails?.title}
+              </CardTitle>
+              <CardDescription className="text-blue-700">
+                Job Details
+              </CardDescription>
+              <Badge
+                variant={
+                  jobDetails?.jobStatus === JobStatus.ACTIVE
+                    ? "success"
+                    : "destructive"
+                }
+                className="mt-2"
+              >
+                {jobDetails?.jobStatus}
+              </Badge>
+            </div>
+            <div className="w-1/2 flex justify-end">
+              <Dialog
+                open={isJobStatusDialogOpen}
+                onOpenChange={setIsJobStatusDialogOpen}
+              >
+                <DialogTrigger asChild>
+                  <Button variant="outline">
+                    {jobStatus === JobStatus.ACTIVE
+                      ? "Close Application"
+                      : "Open Application"}
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Confirm Action</DialogTitle>
+                    <DialogDescription>
+                      {jobStatus === JobStatus.ACTIVE
+                        ? "Are you sure you want to close applications for this job?"
+                        : "Are you sure you want to open applications for this job?"}
+                    </DialogDescription>
+                  </DialogHeader>
+                  <DialogFooter>
+                    <Button onClick={handleJobStatus}>Confirm</Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
           </CardHeader>
           <CardContent className="pt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -211,10 +306,13 @@ const EmployerJobInfo = () => {
                             className="mt-2"
                             variant={
                               application.application?.status === "ACCEPTED"
-                                ? "default"
+                                ? "success"
                                 : application.application?.status === "REJECTED"
                                 ? "destructive"
-                                : "secondary"
+                                : application.application?.status ===
+                                  "SHORTLISTED"
+                                ? "shortlisted"
+                                : "underConsideration"
                             }
                           >
                             {application.application?.status}
@@ -246,32 +344,42 @@ const EmployerJobInfo = () => {
                               </DialogHeader>
                               <Select
                                 onValueChange={(value) =>
-                                  handleStatusChange(
-                                    application.application.id,
-                                    application.user.id,
-                                    value
-                                  )
+                                  setStatus((prev) => ({
+                                    ...prev,
+                                    applicationId: application.application.id,
+                                    userId: application.user.id,
+                                    status: value as ApplicationStatus,
+                                  }))
                                 }
                               >
                                 <SelectTrigger>
                                   <SelectValue placeholder="Select new status" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="ACCEPTED">
+                                  <SelectItem
+                                    value={ApplicationStatus.ACCEPTED}
+                                  >
                                     Accepted
                                   </SelectItem>
-                                  <SelectItem value="SHORTLISTED">
+                                  <SelectItem
+                                    value={ApplicationStatus.SHORTLISTED}
+                                  >
                                     Shortlisted
                                   </SelectItem>
-                                  <SelectItem value="REJECTED">
+                                  <SelectItem
+                                    value={ApplicationStatus.REJECTED}
+                                  >
                                     Rejected
                                   </SelectItem>
                                 </SelectContent>
                               </Select>
                               <DialogFooter>
                                 <DialogClose asChild>
-                                  <Button type="button" variant="secondary">
-                                    Close
+                                  <Button
+                                    type="submit"
+                                    onClick={handleStatusSubmit}
+                                  >
+                                    Change Status
                                   </Button>
                                 </DialogClose>
                               </DialogFooter>
@@ -292,4 +400,4 @@ const EmployerJobInfo = () => {
 };
 
 export default EmployerJobInfo;
-//TODO-> now the status change is not form and all so some issues so make like select then click on done button then change the status
+//TODO->now the status change of application is working but the job status change not so see to that and also for both the toast is not working and again rerender not happening of the component so sudden ui change is not happening so see to that

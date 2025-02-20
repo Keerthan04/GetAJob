@@ -1,5 +1,5 @@
 import { prisma } from "../db/db";
-import { ApplicationStatus } from "@prisma/client";
+import { ApplicationStatus, JobStatus } from "@prisma/client";
 
 export const getJobsByEmployerId = async (employerId: string) => {
   const jobs = await prisma.job.findMany({
@@ -82,4 +82,16 @@ export const updateApplicationStatus = async (
     },
   });
   return application;
+};
+
+export const updateJobStatus = async (jobId: string, jobStatus: JobStatus) => {
+  const job = await prisma.job.update({
+    where: {
+      id: jobId,
+    },
+    data: {
+      jobStatus: jobStatus,
+    },
+  });
+  return job;
 };

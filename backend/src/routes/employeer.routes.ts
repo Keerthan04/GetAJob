@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { employerVerification } from "../middleware/auth.middleware";
-import { getEmployerJobs, getJobAndApplications } from "../controllers/employeer.controller";
+import { getEmployerJobs, getJobAndApplications, changeApplicationStatus, changeJobStatus } from "../controllers/employeer.controller";
 // /api/employeer router
 
 const router = Router();
@@ -16,19 +16,15 @@ router.post("/jobs", (req, res) => {
   res.send("Hello from employeer routes");
 });
 
-//to update a job
-router.put("/jobs/:job_id", (req, res) => {
-  res.send("Hello from employeer routes");
-});
+//to update a job(mainly job status update between active and inactive)
+router.put("/jobs/:job_id", employerVerification, changeJobStatus);
 
 //to delete a job
 router.delete("/jobs/:job_id", (req, res) => {
   res.send("Hello from employeer routes");
 });
 
-router.put("/jobs/:job_id/applications/:application_id/status", (req, res) => {
-  res.send("Hello from employeer routes");
-});
+router.put("/jobs/:job_id/applications/:application_id/status", employerVerification, changeApplicationStatus);
 
 
 

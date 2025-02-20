@@ -2,8 +2,8 @@ import { EmployerMiddlewareRequest } from "../middleware/auth.middleware";
 import { Response, Request } from "express";
 import { getJobsByEmployerId } from "../services/employeer.service";
 import { getJobById, getApplicationsByJobId } from "../services/employeer.service";
-import { ApplicationStatus } from "@prisma/client";
-import { updateApplicationStatus } from "../services/employeer.service";
+import { ApplicationStatus, JobStatus } from "@prisma/client";
+import { updateApplicationStatus, updateJobStatus } from "../services/employeer.service";
 
 
 export async function getEmployerJobs(
@@ -98,3 +98,34 @@ export async function changeApplicationStatus(
   }
 }
 
+interface ChangeJobStatusRequest extends EmployerMiddlewareRequest {
+  params: {
+    job_id: string;
+  };
+  body: {
+    jobStatus: JobStatus;
+  };
+}
+export async function changeJobStatus(
+  req: ChangeJobStatusRequest,
+  res: Response
+) {
+  try {
+    const employer = req.employer;
+    if (!employer) {
+      res.status(401).json({ success: false, message: "Unauthorized" });
+      return;
+    }
+    const { job_id } = req.params;
+    const { jobStatus } = req.body;
+    const job = await updateJobStatus(job_id, jobStatus);
+    res.status(200).json({ success: true, data: job });
+  } catch (error) {
+    console.error("Change job status Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: (error as Error).message,
+    });
+  }
+}
