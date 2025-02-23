@@ -119,25 +119,25 @@ enum ApplicationStatus {
 
 ## Setup and Installation
 
-1.Install dependencies:
+1. Install dependencies:
 
 ```bash
 npm install
 ```
 
-2.Generate Prisma client:
+2. Generate Prisma client:
 
 ```bash
 npm run prisma:generate
 ```
 
-3.Run database migrations:
+3. Run database migrations:
 
 ```bash
 npm run prisma:migrate
 ```
 
-4.Start the development server:
+4. Start the development server:
 
 ```bash
 npm run dev
@@ -158,7 +158,7 @@ Request Body:
 ```json
 {
   "email": "user@example.com",
-  "password": "password123",
+  "password": "password123"
 }
 ```
 
@@ -240,7 +240,7 @@ Request Body:
 ```json
 {
   "email": "employer@company.com",
-  "password": "password123",
+  "password": "password123"
 }
 ```
 
@@ -443,6 +443,190 @@ Response Body:
 }
 ```
 
+### Employer Job Operations
+
+All job-related endpoints require employer authentication. Include the JWT token in the Authorization header:
+
+```json
+Authorization: Bearer <jwt-token>
+```
+
+#### Get Employer Jobs
+
+**GET** `/api/employer/jobs`
+
+Response Body:
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "job-id",
+      "title": "Software Engineer",
+      "description": "Job description here",
+      "createdAt": "2024-01-20T12:00:00Z",
+      "applicantsCount": 5
+    }
+  ]
+}
+```
+
+#### Get Job and Applications
+
+**GET** `/api/employer/jobs/:job_id/applications`
+
+Response Body:
+
+```json
+{
+  "success": true,
+  "data": {
+    "job": {
+      "id": "job-id",
+      "title": "Software Engineer",
+      "description": "Job description here",
+      "company": "Tech Corp",
+      "location": "San Francisco",
+      "skillsRequired": ["JavaScript", "React"],
+      "salaryRange": "$100k - $150k",
+      "jobType": "FULL_TIME",
+      "employerId": "employer-id"
+    },
+    "applications": [
+      {
+        "application": {
+          "id": "application-id",
+          "jobId": "job-id",
+          "userId": "user-id",
+          "status": "UNDER_CONSIDERATION",
+          "createdAt": "2024-01-20T12:00:00Z",
+          "updatedAt": "2024-01-20T12:00:00Z"
+        },
+        "user": {
+          "id": "user-id",
+          "name": "John Doe",
+          "email": "user@example.com",
+          "location": "New York",
+          "skills": ["JavaScript", "React"],
+          "experience": 5,
+          "education": "B.Tech",
+          "resumeLink": "http://example.com/resume.pdf",
+          "portfolio": "http://linkedin.com/in/johndoe",
+          "jobTitle": "Software Engineer",
+          "jobType": ["FULL_TIME"],
+          "availability": true
+        }
+      }
+    ]
+  }
+}
+```
+
+#### Change Application Status
+
+**PATCH** `/api/employer/jobs/:job_id/applications/:application_id/status`
+
+Request Body:
+
+```json
+{
+  "status": "ACCEPTED",
+  "userId": "user-id"
+}
+```
+
+Response Body:
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "application-id",
+    "jobId": "job-id",
+    "userId": "user-id",
+    "status": "ACCEPTED",
+    "createdAt": "2024-01-20T12:00:00Z",
+    "updatedAt": "2024-01-20T12:00:00Z"
+  }
+}
+```
+
+#### Change Job Status
+
+**PATCH** `/api/employer/jobs/:job_id/status`
+
+Request Body:
+
+```json
+{
+  "jobStatus": "CLOSED"
+}
+```
+
+Response Body:
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "job-id",
+    "title": "Software Engineer",
+    "description": "Job description here",
+    "company": "Tech Corp",
+    "location": "San Francisco",
+    "skillsRequired": ["JavaScript", "React"],
+    "salaryRange": "$100k - $150k",
+    "jobType": "FULL_TIME",
+    "employerId": "employer-id",
+    "jobStatus": "CLOSED",
+    "createdAt": "2024-01-20T12:00:00Z",
+    "updatedAt": "2024-01-20T12:00:00Z"
+  }
+}
+```
+
+#### Create Job
+
+**POST** `/api/employer/jobs`
+
+Request Body:
+
+```json
+{
+  "job": {
+    "title": "Software Engineer",
+    "description": "Job description here",
+    "company": "Tech Corp",
+    "location": "San Francisco",
+    "skillsRequired": ["JavaScript", "React"],
+    "salaryRange": "$100k - $150k",
+    "jobType": "FULL_TIME"
+  }
+}
+```
+
+Response Body:
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "job-id",
+    "title": "Software Engineer",
+    "description": "Job description here",
+    "company": "Tech Corp",
+    "location": "San Francisco",
+    "skillsRequired": ["JavaScript", "React"],
+    "salaryRange": "$100k - $150k",
+    "jobType": "FULL_TIME",
+    "employerId": "employer-id",
+    "createdAt": "2024-01-20T12:00:00Z",
+    "updatedAt": "2024-01-20T12:00:00Z"
+  }
+}
+```
+
 ### Middleware
 
 #### User Authentication
@@ -453,6 +637,24 @@ The `userVerification` middleware is used to protect routes that require user au
 2. Verifies the token's validity
 3. Finds the user in the database
 4. Adds the user object (without password) to the request object
+
+If authentication fails, it returns:
+
+```json
+{
+  "success": false,
+  "message": "Unauthorized"
+}
+```
+
+#### Employer Authentication
+
+The `employerVerification` middleware is used to protect routes that require employer authentication. It:
+
+1. Extracts the JWT token from the Authorization header or cookies
+2. Verifies the token's validity
+3. Finds the employer in the database
+4. Adds the employer object (without password) to the request object
 
 If authentication fails, it returns:
 
