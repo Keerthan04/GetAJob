@@ -1,5 +1,5 @@
 import { prisma } from "../db/db";
-import { ApplicationStatus, JobStatus } from "@prisma/client";
+import { ApplicationStatus, Job, JobStatus } from "@prisma/client";
 
 export const getJobsByEmployerId = async (employerId: string) => {
   const jobs = await prisma.job.findMany({
@@ -88,3 +88,17 @@ export const updateJobStatus = async (jobId: string, jobStatus: JobStatus) => {
   });
   return job;
 };
+
+
+export const createJobService = async (job: Omit<Job, "id" | "createdAt" | "updatedAt">  ,employerId:string) => {
+  const createdJob = await prisma.job.create({
+    data: {
+      ...job,
+      employerId: employerId,
+    },
+  });
+  return createdJob;
+};
+
+
+

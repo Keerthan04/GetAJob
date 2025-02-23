@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { employerVerification } from "../middleware/auth.middleware";
-import { getEmployerJobs, getJobAndApplications, changeApplicationStatus, changeJobStatus } from "../controllers/employeer.controller";
+import { getEmployerJobs, getJobAndApplications, changeApplicationStatus, changeJobStatus, createJob } from "../controllers/employeer.controller";
+import { verifyPostJobForm } from "../middleware/postJob.middleware";
 // /api/employeer router
 
 const router = Router();
@@ -12,9 +13,7 @@ router.get("/jobs", employerVerification, getEmployerJobs);
 router.get("/jobs/:job_id", employerVerification, getJobAndApplications);
 
 //to create a new job(shd create and also add the job to the algolia search index)
-router.post("/jobs", (req, res) => {
-  res.send("Hello from employeer routes");
-});
+  router.post("/jobs", employerVerification, verifyPostJobForm, createJob);
 
 //to update a job(mainly job status update between active and inactive)
 router.put("/jobs/:job_id", employerVerification, changeJobStatus);

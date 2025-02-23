@@ -1,15 +1,15 @@
 import { EmployerMiddlewareRequest } from "../middleware/auth.middleware";
 import { Response, Request } from "express";
-import { getJobsByEmployerId } from "../services/employeer.service";
+import { createJobService, getJobsByEmployerId } from "../services/employeer.service";
 import {
   getApplicationsByJobId,
 } from "../services/employeer.service";
-import { ApplicationStatus, JobStatus } from "@prisma/client";
+import { ApplicationStatus, Job, JobStatus } from "@prisma/client";
 import {
   updateApplicationStatus,
   updateJobStatus,
 } from "../services/employeer.service";
-import { getUserById, getJobById } from "../services/utils.service";
+import { getUserById, getJobById, addJobToAlgolia } from "../services/utils.service";
 import { sendEmail } from "../mail/sendEmail";
 import { emailTemplates } from "../mail/emailTemplate";
 
@@ -178,3 +178,38 @@ export async function changeJobStatus(
     });
   }
 }
+
+
+export interface CreateJobRequest extends EmployerMiddlewareRequest {
+  body:{
+    job: Omit<Job, "id" | "createdAt" | "updatedAt">;
+  }
+}
+
+export async function createJob(req: CreateJobRequest, res: Response) {
+  try {
+    const employer = req.employer;
+    if (!employer) {
+      res.status(401).json({ success: false, message: "Unauthorized" });
+      return;
+    }
+    const { job } = req.body;
+    const createdJob = await createJobService(job,employer.id);
+    const addedJobToAlgolia = await addJobToAlgolia(createdJob);
+    if(!addedJobToAlgolia){
+      res.status(500).json({ success: false, message: "Failed to add job to Algolia" });
+      return;
+    }
+    res.status(201).json({ success: true, data: createdJob });
+  } catch (error) {
+    console.error("Create job Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: (error as Error).message,
+    });
+  }
+}
+//TODO->logic issue is if job created but algolia failed, we need to delete the job from the database or we shd make the algolia first then add job to the database(both when we do we shd check if the job is added to the database and algolia)(so another call with delete job from the database and also delete job from the algolia(will be used in the delete job controller also so easy to implement))
+//TODO->make the delete job controller and also make the delete job from the algolia controller(will be used in the delete job controller also so easy to implement))
+//TODO->make the update job controller and also make the update job from the algolia controller(will be used in the update job controller also so easy to implement))

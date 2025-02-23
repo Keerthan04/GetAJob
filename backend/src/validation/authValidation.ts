@@ -1,4 +1,3 @@
-import { Employer } from "@prisma/client";
 import { z } from "zod";
 
 //login user and employer schema(both have only email and password)

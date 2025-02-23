@@ -11,6 +11,7 @@ import ApplicationsPage from "./pages/userPages/ApplicationsPage"
 import LandingPage from "./components/LandingPage"
 import UserProfile from "./pages/userPages/UserProfile"
 import EmployerJobInfo from "./pages/employerPages/EmployerJobInfo"
+import PostJob from "./pages/employerPages/PostJob"
 
 const App = () => {
   return (
@@ -37,6 +38,7 @@ const App = () => {
       {/* Employer Routes */}
       <Route path="/employer/jobs" element={<EmployerDashboard />} />
       <Route path="/employer/jobs/:job_id" element={<EmployerJobInfo />} />
+      <Route path="/employer/post-job" element={<PostJob />} />
       <Route path="*" element={<Error />} />
     </Routes>
   );
