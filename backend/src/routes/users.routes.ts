@@ -1,11 +1,13 @@
 //api/users/
 import { Router } from "express";
 import { userVerification } from "../middleware/auth.middleware";
-import { getJobs, getJobDetails, applyForJob, getAppliedJobs } from "../controllers/users.controller";
+import { getJobs, getJobDetails, applyForJob, getAppliedJobs, getUserProfile } from "../controllers/users.controller";
 
 
 const router = Router();
 
+
+router.get('/profile', userVerification, getUserProfile);
 
 // the validation still to be done
 router.get('/jobs', userVerification, getJobs);

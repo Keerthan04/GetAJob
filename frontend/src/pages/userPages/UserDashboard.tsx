@@ -1,9 +1,9 @@
 import NavBar from "@/components/NavBar";
 
 import { RecommendedJobs } from "@/components/user/Recommended-Jobs";
-import { UserDataContext } from "@/context/UserContext";
+// import { UserDataContext } from "@/context/UserContext";
 import { Job } from "@/types";
-import { useEffect, useContext, useState } from "react";
+import { useEffect, useState } from "react";
 import { Toaster, toast } from "sonner";
 import axios from "axios";
 import { Search } from "lucide-react";
@@ -21,7 +21,7 @@ import SearchHit from "@/components/user/SearchHit";
 //TODO -> Implement the filters for the search results(also if no search results are found to show no results found) and also test pagination with adding more jobs to db and also to algoia index
 
 const UserDashboard = () => {
-  const { userData } = useContext(UserDataContext)!;
+  // const { userData } = useContext(UserDataContext)!;
   const [loading, setLoading] = useState(true);
   const [sampleJobs, setSampleJobs] = useState<Job[]>([]);
 
@@ -52,7 +52,7 @@ const UserDashboard = () => {
 
   return (
     <div>
-      <NavBar pathname="/users/jobs" user={userData} />
+      <NavBar pathname="/users/jobs" />
       <Toaster richColors position="top-right" />
       {loading ? (
         <div className="flex justify-center py-6">Loading...</div>

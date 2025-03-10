@@ -26,7 +26,7 @@ export default function JobApplicationPage() {
   return (
     <>
     <Toaster richColors position="top-right" />
-    <NavBar pathname="/users" user={userData} />
+    <NavBar pathname="/users" />
     <div className="container mx-auto py-6">
       <h1 className="text-2xl font-bold mb-6">Apply for {jobData.title}</h1>
       <JobApplicationForm job={jobData} userData={userData} jobId={jobId} />

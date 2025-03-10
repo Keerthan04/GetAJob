@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useContext, useState } from "react";
 
 import { Link} from "react-router-dom";
 import { Briefcase, Search, Bell, Menu, X } from "lucide-react";
@@ -13,10 +13,12 @@ import {
 import { Button } from "@/components/ui/button";
 // import { UserDataContext } from "@/context/UserContext";
 import { Separator } from "@/components/ui/separator";
-import { User } from "@/types";
+// import { User } from "@/types";
+import { UserDataContext } from "@/context/UserContext";
 
-const NavBar = ({ pathname,user }: { pathname: string,user: User|null }) => {
+const NavBar = ({ pathname }: { pathname: string }) => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const {userData} = useContext(UserDataContext)!;
 
   const navItems = [
     { name: "Find Jobs", href: "/users/jobs", icon: Search },
@@ -72,10 +74,10 @@ const NavBar = ({ pathname,user }: { pathname: string,user: User|null }) => {
                   <div className="grid gap-4">
                     <div className="">
                       <div className="text-base font-medium leading-none text-black">
-                        {user?.name}
+                        {userData?.name}
                       </div>
                       <div className="text-sm font-medium leading-none text-blue-600">
-                        {user?.email}
+                        {userData?.email}
                       </div>
                     </div>
                     <Separator className="text-black" />
@@ -151,10 +153,10 @@ const NavBar = ({ pathname,user }: { pathname: string,user: User|null }) => {
               </div>
               <div className="ml-3">
                 <div className="text-base font-medium leading-none text-white">
-                  {user?.name}
+                  {userData?.name}
                 </div>
                 <div className="text-sm font-medium leading-none text-blue-300">
-                  {user?.email}
+                  {userData?.email}
                 </div>
               </div>
             </div>

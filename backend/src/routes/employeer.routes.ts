@@ -1,10 +1,13 @@
 import { Router } from "express";
 import { employerVerification } from "../middleware/auth.middleware";
-import { getEmployerJobs, getJobAndApplications, changeApplicationStatus, changeJobStatus, createJob } from "../controllers/employeer.controller";
+import { getEmployerJobs, getJobAndApplications, changeApplicationStatus, changeJobStatus, createJob, getEmployerProfile } from "../controllers/employeer.controller";
 import { verifyPostJobForm } from "../middleware/postJob.middleware";
 // /api/employeer router
 
 const router = Router();
+
+//to get the employer profile
+router.get("/profile", employerVerification, getEmployerProfile);
 
 //to get all the jobs posted by the employer
 router.get("/jobs", employerVerification, getEmployerJobs);
@@ -20,7 +23,7 @@ router.put("/jobs/:job_id", employerVerification, changeJobStatus);
 
 //to delete a job
 router.delete("/jobs/:job_id", (req, res) => {
-  res.send("Hello from employeer routes");
+  res.send("Hello from employer routes");
 });
 
 router.put("/jobs/:job_id/applications/:application_id/status", employerVerification, changeApplicationStatus);

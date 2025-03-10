@@ -116,7 +116,7 @@ const UserProfile = () => {
 
   return (
     <>
-    <NavBar pathname="/users" user={userData}/>
+    <NavBar pathname="/users"/>
     <div>
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md mt-5">
       <div className="flex justify-between items-start mb-6">

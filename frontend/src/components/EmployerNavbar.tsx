@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useContext, useState } from "react";
 
 import { Link } from "react-router-dom";
 import { Briefcase, Plus,Menu, X } from "lucide-react";
@@ -13,16 +13,17 @@ import {
 import { Button } from "@/components/ui/button";
 // import { UserDataContext } from "@/context/UserContext";
 import { Separator } from "@/components/ui/separator";
-import { Employer } from "@/types";
+// import { Employer } from "@/types";
+import { EmployerDataContext } from "@/context/EmployeerContext";
 
 const EmployerNavbar = ({
   pathname,
-  employer,
 }: {
   pathname: string;
-  employer: Employer | null;
 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const {employerData} = useContext(EmployerDataContext)!;
 
   const navItems = [
     { name: "Your Jobs", href: "/employer/jobs", icon: Briefcase },
@@ -77,10 +78,10 @@ const EmployerNavbar = ({
                   <div className="grid gap-4">
                     <div className="">
                       <div className="text-base font-medium leading-none text-black">
-                        {employer?.name}
+                        {employerData?.name}
                       </div>
                       <div className="text-sm font-medium leading-none text-blue-600">
-                        {employer?.email}
+                        {employerData?.email}
                       </div>
                     </div>
                     <Separator className="text-black" />
@@ -156,10 +157,10 @@ const EmployerNavbar = ({
               </div>
               <div className="ml-3">
                 <div className="text-base font-medium leading-none text-white">
-                  {employer?.name}
+                  {employerData?.name}
                 </div>
                 <div className="text-sm font-medium leading-none text-blue-300">
-                  {employer?.email}
+                  {employerData?.email}
                 </div>
               </div>
             </div>

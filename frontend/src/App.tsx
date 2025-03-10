@@ -12,6 +12,8 @@ import LandingPage from "./components/LandingPage"
 import UserProfile from "./pages/userPages/UserProfile"
 import EmployerJobInfo from "./pages/employerPages/EmployerJobInfo"
 import PostJob from "./pages/employerPages/PostJob"
+import UserProtectedWrapper from "./components/middleware/UserProtectedWrapper"
+import EmployerProtectedWrapper from "./components/middleware/EmployerProtectedWrapper"
 
 const App = () => {
   return (
@@ -26,19 +28,49 @@ const App = () => {
       />
 
       {/* User Routes */}
-      <Route path="/users/profile" element={<UserProfile />} />
-      <Route path="/users/jobs" element={<UserDashboard />} />
-      <Route path="/users/jobs/:job_id" element={<ViewJob />} />
+      <Route path="/users/profile" element={
+        <UserProtectedWrapper>
+          <UserProfile />
+        </UserProtectedWrapper>} />
+
+      <Route path="/users/jobs" element={
+        <UserProtectedWrapper>
+          <UserDashboard />
+        </UserProtectedWrapper>
+        } />
+      <Route path="/users/jobs/:job_id" element={
+        <UserProtectedWrapper>
+          <ViewJob />
+        </UserProtectedWrapper>
+        } />
       <Route
         path="/users/jobs/:job_id/apply"
-        element={<JobApplicationPage />}
+        element={
+          <UserProtectedWrapper>
+        <JobApplicationPage />
+        </UserProtectedWrapper>}
       />
-      <Route path="/users/applications" element={<ApplicationsPage />} />
+      <Route path="/users/applications" element={
+        <UserProtectedWrapper>
+          <ApplicationsPage />
+        </UserProtectedWrapper>}/>
 
       {/* Employer Routes */}
-      <Route path="/employer/jobs" element={<EmployerDashboard />} />
-      <Route path="/employer/jobs/:job_id" element={<EmployerJobInfo />} />
-      <Route path="/employer/post-job" element={<PostJob />} />
+      <Route path="/employer/jobs" element={
+        <EmployerProtectedWrapper>
+          <EmployerDashboard />
+        </EmployerProtectedWrapper>
+        } />
+      <Route path="/employer/jobs/:job_id" element={
+        <EmployerProtectedWrapper>
+          <EmployerJobInfo />
+        </EmployerProtectedWrapper>
+        } />
+      <Route path="/employer/post-job" element={
+        <EmployerProtectedWrapper>
+          <PostJob />
+        </EmployerProtectedWrapper>
+        } />
       <Route path="*" element={<Error />} />
     </Routes>
   );

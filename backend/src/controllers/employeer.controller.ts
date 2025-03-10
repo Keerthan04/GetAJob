@@ -179,6 +179,24 @@ export async function changeJobStatus(
   }
 }
 
+export async function getEmployerProfile(req: EmployerMiddlewareRequest, res: Response) {
+  try {
+    const employer = req.employer;
+    if (!employer) {
+      res.status(401).json({ success: false, message: "Unauthorized" });
+      return;
+    }
+    res.status(200).json({ success: true, data: employer });
+  } catch (error) {
+    console.error("Get Employer Profile Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: (error as Error).message,
+    });
+  }
+}
+
 
 export interface CreateJobRequest extends EmployerMiddlewareRequest {
   body:{

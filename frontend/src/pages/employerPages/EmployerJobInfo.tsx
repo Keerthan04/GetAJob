@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { useContext, useEffect, useState } from "react";
+import {useEffect, useState } from "react";
 import { Application, Job, User, ApplicationStatus, JobStatus } from "@/types";
 import axios from "axios";
 import { toast } from "sonner";
@@ -42,7 +42,7 @@ import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import EmployerNavbar from "@/components/EmployerNavbar";
-import { EmployerDataContext } from "@/context/EmployeerContext";
+// import { EmployerDataContext } from "@/context/EmployeerContext";
 
 interface ApplicationWithUser {
   application: Application;
@@ -67,7 +67,7 @@ const EmployerJobInfo = () => {
   });
   const [jobStatus, setJobStatus] = useState<JobStatus>(JobStatus.ACTIVE);
   const [isJobStatusDialogOpen, setIsJobStatusDialogOpen] = useState(false);
-  const { employerData } = useContext(EmployerDataContext)!;
+  // const { employerData } = useContext(EmployerDataContext)!;
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -187,7 +187,7 @@ const EmployerJobInfo = () => {
 
   return (
     <div className="bg-gray-50 min-h-screen">
-      <EmployerNavbar pathname="/employer/jobs" employer={employerData} />
+      <EmployerNavbar pathname="/employer/jobs" />
       <div className="container mx-auto p-6">
         <Card className="mb-8 border-2 border-blue-100">
           <CardHeader className="bg-blue-50 flex flex-row justify-between">

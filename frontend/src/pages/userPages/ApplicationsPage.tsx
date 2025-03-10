@@ -1,12 +1,12 @@
 import NavBar from "@/components/NavBar";
 import ApplicationsTable from "@/components/user/ApplicationsTable";
-import { UserDataContext } from "@/context/UserContext";
+// import { UserDataContext } from "@/context/UserContext";
 import axios from "axios";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast, Toaster } from "sonner";
 
 const ApplicationsPage = () => {
-  const { userData } = useContext(UserDataContext)!;
+  // const { userData } = useContext(UserDataContext)!;
   const [loading, setLoading] = useState(true);
   const [appliedJobs, setAppliedJobs] = useState([]);
 
@@ -36,7 +36,7 @@ const ApplicationsPage = () => {
   }, []);
   return (
     <div>
-      <NavBar pathname="/users/applications" user={userData} />
+      <NavBar pathname="/users/applications" />
       <Toaster richColors position="top-right" />
       {loading ? (
         <div className="flex justify-center py-6">Loading...</div>

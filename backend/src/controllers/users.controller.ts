@@ -129,3 +129,19 @@ export async function getAppliedJobs(req: UserMiddlewareRequest, res: Response):
         });
     }
 }
+
+export async function getUserProfile(req: UserMiddlewareRequest, res: Response): Promise<void> {
+    try {
+        res.status(200).json({
+            success: true,
+            data: req.user
+        });
+    } catch (error) {
+        console.error("Get User Profile Error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Internal Server Error",
+            error: (error as Error).message
+        });
+    }
+}

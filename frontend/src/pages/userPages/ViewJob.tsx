@@ -1,5 +1,5 @@
-import { UserDataContext } from "@/context/UserContext";
-import { useEffect, useContext, useState } from "react";
+// import { UserDataContext } from "@/context/UserContext";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import NavBar from "@/components/NavBar";
@@ -10,7 +10,7 @@ import { Toaster,toast } from "sonner";
 const ViewJob = () => {
   const { job_id } = useParams<{ job_id: string }>();
   console.log(job_id)
-  const { userData } = useContext(UserDataContext)!;
+  // const { userData } = useContext(UserDataContext)!;
   const [job, setJob] = useState<Job | null>(null);
   const [isApplied, setIsApplied] = useState<boolean>(false);
   const [company, setCompany] = useState<companyDetails | null>(null);
@@ -54,7 +54,7 @@ const ViewJob = () => {
   return (
     <>
       <Toaster richColors position="top-right" />
-      <NavBar pathname="/users" user={userData} />
+      <NavBar pathname="/users"  />
       {loading ? (
         <div className="text-center flex h-screen w-screen items-center justify-center">Loading...</div>
       )
