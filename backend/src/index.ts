@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 
 import userRouter from './routes/users.routes';
 import employeerRouter from './routes/employeer.routes';
+import awsRouter from './routes/awss3.routes';
 import cors from 'cors';
 import dotenv from 'dotenv';
 dotenv.config();
@@ -17,6 +18,7 @@ app.use(cors())
 app.use('/api/users',userRouter);
 app.use('/api/employer',employeerRouter);
 app.use('/api/auth',authRouter);
+app.use('/api/aws', awsRouter);
 
 
 app.get('/',(req:Request,res:Response)=>{
