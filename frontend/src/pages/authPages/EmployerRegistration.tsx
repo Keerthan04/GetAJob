@@ -27,20 +27,24 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { toast,Toaster } from "sonner";
-import { useNavigate } from "react-router-dom";
+import { toast, Toaster } from "sonner";
+import { Link, useNavigate } from "react-router-dom";
 import { EmployerRegisterService } from "@/services/FetchDataServices";
 // import { MultiSelect } from "@/components/ui/MultiSelect"; // MultiSelect for industry
-import { Briefcase, User,Link2 } from "lucide-react";
-import { CompanySize, Industry} from "@/types";
+import { Briefcase, User, Link2 } from "lucide-react";
+import { CompanySize, Industry } from "@/types";
 import { Textarea } from "@/components/ui/textarea";
 import { registerEmployerSchema } from "@/validation/authValidation";
 
-
 // Enums
 const COMPANY_SIZES = ["SMALL", "MEDIUM", "LARGE"] as const;
-const INDUSTRIES = ["TECH", "HEALTHCARE", "FINANCE", "EDUCATION", "MANUFACTURING"] as const;
-
+const INDUSTRIES = [
+  "TECH",
+  "HEALTHCARE",
+  "FINANCE",
+  "EDUCATION",
+  "MANUFACTURING",
+] as const;
 
 // Schema validation using Zod
 // const employerSchema = z.object({
@@ -79,7 +83,7 @@ export function EmployerRegistration() {
       logoUrl: "",
       verified: true, // Always true(this will be done by us so default shd be false but for now done as true)
     },
-    mode:"onChange",
+    mode: "onChange",
   });
 
   const onSubmit = async (data: EmployerFormValues) => {
@@ -87,11 +91,11 @@ export function EmployerRegistration() {
     console.log(data);
     const toastId = toast.loading("Registering employer...");
     try {
-        const formattedData = {
-          ...data,
-          companySize: data.companySize as CompanySize, // Ensure type matches
-          industry: data.industry as Industry, // Select the first industry
-        };
+      const formattedData = {
+        ...data,
+        companySize: data.companySize as CompanySize, // Ensure type matches
+        industry: data.industry as Industry, // Select the first industry
+      };
       const responseData = await EmployerRegisterService(formattedData);
 
       if (responseData.success) {
@@ -102,27 +106,29 @@ export function EmployerRegistration() {
           id: toastId,
         });
       }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Login Error:", error);
-      
+
       //make use of zod error handling
       if (error.response?.data?.message) {
-              const backendErrors = error.response.data.message; // Expected to be the structured Zod error format from backend
-      
-              if (typeof backendErrors === "object") {
-                Object.keys(backendErrors).forEach((field) => {
-                  form.setError(field as keyof z.infer<typeof registerEmployerSchema>, {
-                    type: "server",
-                    message: backendErrors[field]._errors.join(", "),
-                  });
-                });
-              }else{
-                toast.error(error.response.data?.message || "Something went wrong", {
-                  id: toastId,
-                });
+        const backendErrors = error.response.data.message; // Expected to be the structured Zod error format from backend
+
+        if (typeof backendErrors === "object") {
+          Object.keys(backendErrors).forEach((field) => {
+            form.setError(
+              field as keyof z.infer<typeof registerEmployerSchema>,
+              {
+                type: "server",
+                message: backendErrors[field]._errors.join(", "),
               }
-              
+            );
+          });
+        } else {
+          toast.error(error.response.data?.message || "Something went wrong", {
+            id: toastId,
+          });
+        }
       } else {
         // Network error or request failure
         toast.error("Internal Server Error", { id: toastId });
@@ -166,6 +172,21 @@ export function EmployerRegistration() {
               <p className="text-slate-600">
                 Build your company’s employer brand
               </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <Link to="/auth/login" className="text-blue-600 underline">
+                Already have an account? Login here
+              </Link>
+            </div>
+            <div className="flex items-center gap-3">
+              <Link
+                to="/auth/register/user"
+                className="text-blue-600 underline"
+              >
+                <Button size="default" className="bg-blue-600">
+                  Register as User
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -365,7 +386,10 @@ export function EmployerRegistration() {
                       <FormItem>
                         <FormLabel>Company Description</FormLabel>
                         <FormControl>
-                          <Textarea placeholder="Brief Company Description" {...field} />
+                          <Textarea
+                            placeholder="Brief Company Description"
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

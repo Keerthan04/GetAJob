@@ -37,7 +37,7 @@ import {
   Briefcase,
   Link2,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { UserRegisterService } from "@/services/FetchDataServices";
 
 
@@ -157,6 +157,21 @@ export function UserRegistration() {
                 <Link2 className="w-5 h-5 text-blue-600" />
               </div>
               <p className="text-slate-600">Connect with employers directly</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <Link to="/auth/login" className="text-blue-600 underline">
+                Already have an account? Login here
+              </Link>
+            </div>
+            <div className="flex items-center gap-3">
+              <Link
+                to="/auth/register/employer"
+                className="text-blue-600 underline"
+              >
+                <Button size="default" className="bg-blue-600">
+                  Register as Employer
+                </Button>
+              </Link>
             </div>
           </div>
         </div>

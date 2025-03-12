@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
-import { getAllJobs, getJob, getUserAppliedJobs, jobApplication } from "../services/users.service";
+import { getAllJobs, getJob, getUserAppliedJobs, jobApplication, updateUserResumeLink } from "../services/users.service";
 import { ApplicationStatus, Job } from "@prisma/client";
 import { UserMiddlewareRequest } from "../middleware/auth.middleware";
+import { getDocumentSummary } from "../services/gemini.service";
 
 export async function getJobs(req: UserMiddlewareRequest, res: Response): Promise<void> {
     try {
@@ -132,10 +133,28 @@ export async function getAppliedJobs(req: UserMiddlewareRequest, res: Response):
 
 export async function getUserProfile(req: UserMiddlewareRequest, res: Response): Promise<void> {
     try {
+      const user = req.user;
+      if (!user) {
+        //wont as in middleware only will be sent back so
+        res.status(401).json({
+          success: false,
+          message: "Unauthorized: User not found in request",
+        });
+        return;
+      }
+      if(!user.resumeLink){
         res.status(200).json({
             success: true,
-            data: req.user
+            data: {user:user,AI_summary:""}//so if no resume link no ai summary
         });
+      }
+      else{
+        const AI_summary = await getDocumentSummary(user.resumeLink);
+        res.status(200).json({
+            success: true,
+            data: {user:user,AI_summary:AI_summary}
+        });
+      }
     } catch (error) {
         console.error("Get User Profile Error:", error);
         res.status(500).json({
@@ -145,3 +164,51 @@ export async function getUserProfile(req: UserMiddlewareRequest, res: Response):
         });
     }
 }
+//TODO-> if AI_summary instead of always asking for it better to ask once and a column in db for it and then update it when the user updates the resume link
+
+//for updating the resume link
+export async function updateUserProfile(req: UserMiddlewareRequest, res: Response): Promise<void> {
+    try {
+        const userId = req.user?.id;
+        if (!userId) {
+          res.status(401).json({
+            success: false,
+            message: "Unauthorized: User not found in request",
+          });
+          return;
+        }
+
+        const { resumeLink } = req.body;
+        if (!resumeLink) {
+          res.status(400).json({
+            success: false,
+            message: "resumeLink is required",
+          });
+          return;
+        }
+
+        // Update the user record with the new resumeLink
+        const updatedUserResumeLink = await updateUserResumeLink(userId, resumeLink);
+        if (!updatedUserResumeLink) {
+          res.status(404).json({
+            success: false,
+            message: "Failed to update user information",
+          });
+          return;
+        }
+        const AI_summary = await getDocumentSummary(resumeLink);
+
+
+        res.status(200).json({ success: true, data: {resumeLink:updatedUserResumeLink,AI_summary:AI_summary} });
+        return;
+    }
+    catch (error) {
+        console.error("Update User Profile Error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Internal Server Error",
+            error: (error as Error).message
+        });
+    }
+}
+//TODO-> for update of the complete user profile we need to do the same as above but with all the fields and also check if the user is present in the db or not

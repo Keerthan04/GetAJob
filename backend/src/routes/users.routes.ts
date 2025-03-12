@@ -1,13 +1,14 @@
 //api/users/
 import { Router } from "express";
 import { userVerification } from "../middleware/auth.middleware";
-import { getJobs, getJobDetails, applyForJob, getAppliedJobs, getUserProfile } from "../controllers/users.controller";
+import { getJobs, getJobDetails, applyForJob, getAppliedJobs, getUserProfile, updateUserProfile } from "../controllers/users.controller";
 
 
 const router = Router();
 
 
 router.get('/profile', userVerification, getUserProfile);
+router.patch('/profile', userVerification, updateUserProfile);//hit only when update of resume link is done
 
 // the validation still to be done
 router.get('/jobs', userVerification, getJobs);

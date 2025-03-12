@@ -110,3 +110,23 @@ const getAppliedJobs = async (
   );
   return jobs;
 };
+
+export const updateUserResumeLink = async (user_id: string, resumeLink: string) => {
+    // update user resume link
+    await prisma.user.update({
+        where: {
+            id: user_id
+        },
+        data: {
+            resumeLink: resumeLink
+        }
+    });
+    return prisma.user.findUnique({
+        where: {
+            id: user_id
+        },
+        select: {
+            resumeLink: true
+        }
+    });
+}
